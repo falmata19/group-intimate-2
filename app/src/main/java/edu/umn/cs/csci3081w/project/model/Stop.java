@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * A stop where passengers wait until they get on a vehicle.
+ */
 public class Stop {
   private int id;
   private String name;

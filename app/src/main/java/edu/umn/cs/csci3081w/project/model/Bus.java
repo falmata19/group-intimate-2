@@ -2,6 +2,10 @@ package edu.umn.cs.csci3081w.project.model;
 
 import java.io.PrintStream;
 
+/**
+ * A bus that drives the outbound route and then the inbound route, and picks up and drops off
+ * passengers at each stop.
+ */
 public class Bus extends Vehicle {
   public static final String BUS_VEHICLE = "BUS_VEHICLE";
   public static final double SPEED = 0.5;
@@ -14,7 +18,7 @@ public class Bus extends Vehicle {
    * Constructor for a bus.
    *
    * @param id       bus identifier
-   * @param line     route of in/out bound
+   * @param line     line the bus serves
    * @param capacity capacity of bus
    * @param speed    speed of bus
    */
@@ -50,10 +54,21 @@ public class Bus extends Vehicle {
     out.println("####Bus Info End####");
   }
 
+  /**
+   * Checks if the bus finished both routes.
+   *
+   * @return true if the trip is done
+   */
   public boolean isTripComplete() {
     return line.getOutboundRoute().isAtEnd() && line.getInboundRoute().isAtEnd();
   }
 
+  /**
+   * Puts a passenger on the bus if there is room.
+   *
+   * @param newPassenger the passenger to put on the bus
+   * @return how many passengers got on, 1 or 0
+   */
   public int loadPassenger(Passenger newPassenger) {
     return getPassengerLoader().loadPassenger(newPassenger, getCapacity(), getPassengers());
   }
@@ -116,15 +131,6 @@ public class Bus extends Vehicle {
     move();
   }
 
-  /**
-   * co2 consumption for a bus.
-   *
-   * @return The current co2 consumption value
-  */
-  public int getCurrentCO2Emission() {
-    return (2 * getPassengers().size()) + 4;
-  }
-
   private int unloadPassengers() {
     return getPassengerUnloader().unloadPassengers(getPassengers(), nextStop);
   }
@@ -185,7 +191,10 @@ public class Bus extends Vehicle {
     return nextStop;
   }
 
-  public Line getLine() {
-    return line;
+  /**
+   * Returns the CO2 the bus is producing right now.
+   */
+  public int getCo2Emission() {
+    return getPassengers().size() * 2 + 4;
   }
 }

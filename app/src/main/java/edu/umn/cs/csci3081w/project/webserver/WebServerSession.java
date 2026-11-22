@@ -4,9 +4,6 @@ package edu.umn.cs.csci3081w.project.webserver;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -14,6 +11,9 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+/**
+ * Websocket endpoint that gets commands from the visualization module and sends data back.
+ */
 @ServerEndpoint(
     value = "/simulator",
     subprotocols = {"web_server"}
@@ -23,6 +23,9 @@ public class WebServerSession {
   private Session session;
   private WebServerSessionState webServerState;
 
+  /**
+   * Makes a session.
+   */
   public WebServerSession() {
     System.out.println("class loaded " + this.getClass());
   }
@@ -39,18 +42,15 @@ public class WebServerSession {
     //save session object
     this.session = session;
     webServerState = new WebServerSessionState();
-    String configPath = "";
-    URL configPathUrl = getClass().getClassLoader().getResource("config.txt");
-    if (configPathUrl != null) {
-      configPath = URLDecoder.decode(configPathUrl.getPath(), StandardCharsets.UTF_8);
-    }
-    VisualTransitSimulator simulator = new VisualTransitSimulator(configPath, this);
+    VisualTransitSimulator simulator = new VisualTransitSimulator(
+        getClass().getClassLoader().getResource("config.txt").getFile());
     webServerState.getCommands().put("getRoutes", new GetRoutesCommand(simulator));
     webServerState.getCommands().put("getVehicles", new GetVehiclesCommand(simulator));
     webServerState.getCommands().put("start", new StartCommand(simulator));
-    webServerState.getCommands().put("update", new UpdateCommand(simulator));
+    PauseCommand pauseCommand = new PauseCommand();
+    webServerState.getCommands().put("pause", pauseCommand);
+    webServerState.getCommands().put("update", new UpdateCommand(simulator, pauseCommand));
     webServerState.getCommands().put("initLines", new InitLinesCommand(simulator));
-    webServerState.getCommands().put("pause", new PauseCommand(simulator));
   }
 
 
@@ -84,6 +84,11 @@ public class WebServerSession {
     }
   }
 
+  /**
+   * Prints the error from the websocket.
+   *
+   * @param e the error that happened
+   */
   @OnError
   public void onError(Throwable e) {
     e.printStackTrace();

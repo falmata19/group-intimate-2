@@ -1,28 +1,19 @@
 package edu.umn.cs.csci3081w.project.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class RouteTest {
-
-  /**
-   * Setup operations before each test runs.
-   */
-
-  private Route testRouteOut;
-  private Route testRouteIn;
-  private Route simpleTestRouteIn;
 
   /**
    * Setup operations before each test runs.
@@ -33,240 +24,219 @@ public class RouteTest {
     PassengerFactory.DETERMINISTIC_NAMES_COUNT = 0;
     PassengerFactory.DETERMINISTIC_DESTINATION_COUNT = 0;
     RandomPassengerGenerator.DETERMINISTIC = true;
-
-    Stop stop1 = new Stop(0, "test stop 1", new Position(-93.243774, 44.972392));
-    Stop stop2 = new Stop(1, "test stop 2", new Position(-93.235071, 44.973580));
-    Stop stop3 = new Stop(2, "test stop 3", new Position(-93.226632, 44.975392));
-    List<Stop> stopsOut = new ArrayList<Stop>();
-    stopsOut.add(stop1);
-    stopsOut.add(stop2);
-    stopsOut.add(stop3);
-    List<Double> distancesOut = new ArrayList<Double>();
-    distancesOut.add(0.9712663713083954);
-    distancesOut.add(0.961379387775189);
-    List<Double> probabilitiesOut = new ArrayList<Double>();
-    probabilitiesOut.add(.15);
-    probabilitiesOut.add(0.3);
-    probabilitiesOut.add(.0);
-    PassengerGenerator generatorOut = new RandomPassengerGenerator(stopsOut, probabilitiesOut);
-    testRouteOut = new Route(10, "testRouteOut",
-        stopsOut, distancesOut, generatorOut);
-
-    List<Stop> stopsIn = new ArrayList<>();
-    stopsIn.add(stop3);
-    stopsIn.add(stop2);
-    stopsIn.add(stop1);
-    List<Double> distancesIn = new ArrayList<>();
-    distancesIn.add(0.961379387775189);
-    distancesIn.add(0.9712663713083954);
-    List<Double> probabilitiesIn = new ArrayList<>();
-    probabilitiesIn.add(.4);
-    probabilitiesIn.add(0.3);
-    probabilitiesIn.add(.0);
-    PassengerGenerator generatorIn = new RandomPassengerGenerator(stopsIn, probabilitiesIn);
-    testRouteIn = new Route(11, "testRouteIn",
-        stopsIn, distancesIn, generatorIn);
-
-
-    List<Stop> simpleStopsIn = new ArrayList<Stop>();
-    Stop simpleStop1 = new Stop(0, "test stop", new Position(-93.243774, 44.972392));
-    simpleStopsIn.add(simpleStop1);
-    List<Double> simpleDistancesIn = new ArrayList<>();
-    simpleDistancesIn.add(0.961379387775189);
-    List<Double> simpleProbabilitiesIn = new ArrayList<Double>();
-    simpleProbabilitiesIn.add(.5);
-    PassengerGenerator simpleGeneratorIn = new RandomPassengerGenerator(simpleStopsIn,
-        simpleProbabilitiesIn);
-
-    simpleTestRouteIn = new Route(0, "simpleTestRouteIn",
-        simpleStopsIn, simpleDistancesIn, simpleGeneratorIn);
   }
 
+  private Route createRoute() {
+    List<Stop> stops = new ArrayList<Stop>();
+    stops.add(new Stop(0, "test stop 1", new Position(-93.243774, 44.972392)));
+    stops.add(new Stop(1, "test stop 2", new Position(-93.235071, 44.973581)));
+    stops.add(new Stop(2, "test stop 3", new Position(-93.226632, 44.975392)));
+    List<Double> distances = new ArrayList<Double>();
+    distances.add(0.5);
+    distances.add(0.75);
+    List<Double> probabilities = new ArrayList<Double>();
+    probabilities.add(.15);
+    probabilities.add(.3);
+    probabilities.add(.0);
+    PassengerGenerator generator = new RandomPassengerGenerator(stops, probabilities);
+    return new Route(10, "testLine", "BUS_LINE", "testRoute", stops, distances, generator);
+  }
+
+  private String reportOf(Route route) {
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PrintStream printStream = new PrintStream(outputStream);
+    route.report(printStream);
+    printStream.flush();
+    return outputStream.toString();
+  }
+
+  private String expectedReport(Route route, int markedIndex) {
+    String sep = System.lineSeparator();
+    StringBuilder expected = new StringBuilder();
+    expected.append("####Route Info Start####").append(sep)
+        .append("ID: 10").append(sep)
+        .append("Line name: testLine").append(sep)
+        .append("Line type: BUS_LINE").append(sep)
+        .append("Name: testRoute").append(sep)
+        .append("Num stops: 3").append(sep)
+        .append("****Stops Info Start****").append(sep);
+    for (int index = 0; index < route.getStops().size(); index++) {
+      Stop stop = route.getStops().get(index);
+      if (index == markedIndex) {
+        expected.append("++++Next Stop Info Start++++").append(sep);
+      }
+      expected.append("####Stop Info Start####").append(sep)
+          .append("ID: ").append(stop.getId()).append(sep)
+          .append("Name: ").append(stop.getName()).append(sep)
+          .append("Position: ").append(stop.getPosition().getLatitude()).append(",")
+          .append(stop.getPosition().getLongitude()).append(sep)
+          .append("****Passengers Info Start****").append(sep)
+          .append("Num passengers waiting: 0").append(sep)
+          .append("****Passengers Info End****").append(sep)
+          .append("####Stop Info End####").append(sep);
+      if (index == markedIndex) {
+        expected.append("++++Next Stop Info End++++").append(sep);
+      }
+    }
+    expected.append("****Stops Info End****").append(sep)
+        .append("####Route Info End####").append(sep);
+    return expected.toString();
+  }
 
   /**
-   * Testing state after using constructor.
+   * Tests the state of a route after using the constructor.
    */
   @Test
-  public void testConstructorNormal() {
-    assertEquals(10, testRouteOut.getId());
-    assertEquals("testRouteOut", testRouteOut.getName());
-    assertEquals(3, testRouteOut.getStops().size());
-
-    assertEquals(11, testRouteIn.getId());
-    assertEquals("testRouteIn", testRouteIn.getName());
-    assertEquals(3, testRouteIn.getStops().size());
+  public void testConstructor() {
+    Route route = createRoute();
+    assertEquals(10, route.getId());
+    assertEquals("testLine", route.getLineName());
+    assertEquals("BUS_LINE", route.getLineType());
+    assertEquals("testRoute", route.getName());
+    assertEquals(3, route.getStops().size());
+    assertEquals(0, route.getNextStopIndex());
+    assertSame(route.getStops().get(0), route.getNextStop());
+    assertFalse(route.isAtEnd());
   }
 
-
   /**
-   * Test for the shallowCopy function.
-   * check if the function returns the expected shallow copy of the Route class
+   * Tests that a shallow copy is a new route that shares the same stops.
    */
   @Test
   public void testShallowCopy() {
-    Route shallowRouteOut = testRouteOut.shallowCopy();
-    assertEquals(testRouteOut.getId(), shallowRouteOut.getId());
-    assertEquals(testRouteOut.getName(), shallowRouteOut.getName());
-    assertEquals(testRouteOut.getStops(), shallowRouteOut.getStops());
-    assertEquals(testRouteOut.getNextStopIndex(), shallowRouteOut.getNextStopIndex());
-    assertEquals(testRouteOut.getId(), shallowRouteOut.getId());
-
-    shallowRouteOut.nextStop();
-
-    assertEquals(1, shallowRouteOut.getNextStopIndex());
-    assertEquals(0, testRouteOut.getNextStopIndex());
-
-  }
-
-  /**
-   * Tests reporting functionality.
-   */
-  @Test
-  public void testReport() {
-    try {
-      final Charset charset = StandardCharsets.UTF_8;
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      PrintStream testStream = new PrintStream(outputStream, true, charset.name());
-      simpleTestRouteIn.report(testStream);
-      outputStream.flush();
-      String data = new String(outputStream.toByteArray(), charset);
-      testStream.close();
-      outputStream.close();
-      String strToCompare =
-          "####Route Info Start####" + System.lineSeparator()
-              + "ID: 0" + System.lineSeparator()
-              + "Name: simpleTestRouteIn" + System.lineSeparator()
-              + "Num stops: 1" + System.lineSeparator()
-              + "****Stops Info Start****" + System.lineSeparator()
-              + "++++Next Stop Info Start++++" + System.lineSeparator()
-              + "####Stop Info Start####" + System.lineSeparator()
-              + "ID: 0" + System.lineSeparator()
-              + "Name: test stop" + System.lineSeparator()
-              + "Position: 44.972392,-93.243774" + System.lineSeparator()
-              + "****Passengers Info Start****" + System.lineSeparator()
-              + "Num passengers waiting: 0" + System.lineSeparator()
-              + "****Passengers Info End****" + System.lineSeparator()
-              + "####Stop Info End####" + System.lineSeparator()
-              + "++++Next Stop Info End++++" + System.lineSeparator()
-              + "****Stops Info End****" + System.lineSeparator()
-              + "####Route Info End####" + System.lineSeparator();
-      assertEquals(data, strToCompare);
-    } catch (IOException ioe) {
-      fail();
+    Route route = createRoute();
+    route.nextStop();
+    Route copy = route.shallowCopy();
+    assertNotSame(route, copy);
+    assertEquals(route.getId(), copy.getId());
+    assertEquals(route.getName(), copy.getName());
+    assertEquals(route.getLineName(), copy.getLineName());
+    assertEquals(route.getLineType(), copy.getLineType());
+    assertEquals(route.getStops().size(), copy.getStops().size());
+    for (int index = 0; index < route.getStops().size(); index++) {
+      assertSame(route.getStops().get(index), copy.getStops().get(index));
     }
-  }
-
-
-  /**
-   * Tests if we properly move through stops to end.
-   */
-  @Test
-  public void testIsAtEnd() {
-
-    // simple case
-    assertEquals(false, simpleTestRouteIn.isAtEnd());
-    simpleTestRouteIn.nextStop();
-    assertEquals(true, simpleTestRouteIn.isAtEnd());
-
-    // more complex case
-    testRouteIn.nextStop();
-    assertEquals(false, testRouteIn.isAtEnd());
-    testRouteIn.nextStop();
-    assertEquals(false, testRouteIn.isAtEnd());
-    testRouteIn.nextStop();
-    assertEquals(true, testRouteIn.isAtEnd());
-
-  }
-
-
-  /**
-   * Tests if we can check our previous stop.
-   */
-  @Test
-  public void testPrevStop() {
-    // test outbound
-    assertEquals("test stop 1", testRouteOut.prevStop().getName());
-    testRouteOut.nextStop();
-    assertEquals("test stop 1", testRouteOut.prevStop().getName());
-    testRouteOut.nextStop();
-    assertEquals("test stop 2", testRouteOut.prevStop().getName());
-
-    // test inbound
-    assertEquals("test stop 3", testRouteIn.prevStop().getName());
-    testRouteIn.nextStop();
-    assertEquals("test stop 3", testRouteIn.prevStop().getName());
-    testRouteIn.nextStop();
-    assertEquals("test stop 2", testRouteIn.prevStop().getName());
+    assertEquals(0, copy.getNextStopIndex());
+    assertEquals(1, route.getNextStopIndex());
   }
 
   /**
-   * Tests if we can move forward through stops.
-   * This also tests getDestinationStop implicitly
-   */
-  @Test
-  public void testNextStop() {
-    // test outbound
-    assertEquals("test stop 1", testRouteOut.getNextStop().getName());
-    testRouteOut.nextStop();
-    assertEquals("test stop 2", testRouteOut.getNextStop().getName());
-
-    // test inbound
-    assertEquals("test stop 3", testRouteIn.getNextStop().getName());
-    testRouteIn.nextStop();
-    assertEquals("test stop 2", testRouteIn.getNextStop().getName());
-    testRouteIn.nextStop();
-    assertEquals("test stop 1", testRouteIn.getNextStop().getName());
-  }
-
-
-  /**
-   * Tests if we can calculate the next stops distance.
-   */
-  @Test
-  public void testGetNextStopDistance() {
-    assertEquals(0.0, testRouteOut.getNextStopDistance());
-    testRouteOut.nextStop();
-    assertEquals(0.9712663713083954, testRouteOut.getNextStopDistance());
-
-  }
-
-  /**
-   * Tests new passengers are being generated.
-   */
-  @Test
-  public void testGenerateNewPassengers() {
-    assertEquals(2.0, testRouteOut.generateNewPassengers());
-    assertEquals(1, testRouteOut.getStops().get(0).getPassengers().size());
-  }
-
-  /**
-   * Tests update.
+   * Tests that updating a route ages the passengers waiting at its stops.
    */
   @Test
   public void testUpdate() {
-    testRouteIn.update();
-
-    // checking if passengers are being generated
-    assertEquals(2, testRouteIn.getStops().get(0).getPassengers().size());
-    assertEquals(1, testRouteIn.getStops().get(1).getPassengers().size());
-
-    //checking for passenger value updates
-    assertEquals(0, testRouteIn.getStops().get(0).getPassengers().get(0).getTimeOnVehicle());
-    assertEquals(1, testRouteIn.getStops().get(0).getPassengers().get(0).getWaitAtStop());
-
-    // making sure that the stops are being iterated
-    assertEquals(0, testRouteIn.getStops().get(1).getPassengers().get(0).getTimeOnVehicle());
-    assertEquals(1, testRouteIn.getStops().get(1).getPassengers().get(0).getWaitAtStop());
+    Route route = createRoute();
+    Passenger passenger = new Passenger(1, "Goldy");
+    route.getStops().get(0).addPassengers(passenger);
+    route.update();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PrintStream printStream = new PrintStream(outputStream);
+    passenger.report(printStream);
+    printStream.flush();
+    assertTrue(outputStream.toString().contains("Wait at stop: 1"));
   }
 
   /**
-   * Clean up our variables after each test.
+   * Tests the report output when the first stop is the next stop.
    */
-  @AfterEach
-  public void cleanUpEach() {
-    testRouteOut = null;
-    testRouteIn = null;
-    simpleTestRouteIn = null;
+  @Test
+  public void testReportAtStart() {
+    Route route = createRoute();
+    assertEquals(expectedReport(route, 0), reportOf(route));
+  }
+
+  /**
+   * Tests that the report marks the new next stop after the route advances.
+   */
+  @Test
+  public void testReportAfterNextStop() {
+    Route route = createRoute();
+    route.nextStop();
+    assertEquals(expectedReport(route, 1), reportOf(route));
+  }
+
+  /**
+   * Tests that a route is at its end only after every stop has been passed.
+   */
+  @Test
+  public void testIsAtEnd() {
+    Route route = createRoute();
+    assertFalse(route.isAtEnd());
+    route.nextStop();
+    route.nextStop();
+    assertFalse(route.isAtEnd());
+    route.nextStop();
+    assertTrue(route.isAtEnd());
+  }
+
+  /**
+   * Tests the previous stop at the start, in the middle, and at the end of the route.
+   */
+  @Test
+  public void testPrevStop() {
+    Route route = createRoute();
+    assertSame(route.getStops().get(0), route.prevStop());
+    route.nextStop();
+    assertSame(route.getStops().get(0), route.prevStop());
+    route.nextStop();
+    assertSame(route.getStops().get(1), route.prevStop());
+    route.nextStop();
+    assertSame(route.getStops().get(2), route.prevStop());
+  }
+
+  /**
+   * Tests that advancing moves the destination stop and keeps the last stop at the end.
+   */
+  @Test
+  public void testNextStop() {
+    Route route = createRoute();
+    route.nextStop();
+    assertEquals(1, route.getNextStopIndex());
+    assertSame(route.getStops().get(1), route.getNextStop());
+    route.nextStop();
+    assertEquals(2, route.getNextStopIndex());
+    assertSame(route.getStops().get(2), route.getNextStop());
+    route.nextStop();
+    assertEquals(3, route.getNextStopIndex());
+    assertSame(route.getStops().get(2), route.getNextStop());
+  }
+
+  /**
+   * Tests that the destination stop starts at the first stop and follows the route.
+   */
+  @Test
+  public void testGetNextStop() {
+    Route route = createRoute();
+    assertSame(route.getStops().get(0), route.getNextStop());
+    route.nextStop();
+    assertSame(route.getStops().get(1), route.getNextStop());
+  }
+
+  /**
+   * Tests the distance to the next stop at each position along the route.
+   */
+  @Test
+  public void testGetNextStopDistance() {
+    Route route = createRoute();
+    assertEquals(0.0, route.getNextStopDistance());
+    route.nextStop();
+    assertEquals(0.5, route.getNextStopDistance());
+    route.nextStop();
+    assertEquals(0.75, route.getNextStopDistance());
+  }
+
+  /**
+   * Tests that the number of generated passengers matches the passengers added to the stops.
+   */
+  @Test
+  public void testGenerateNewPassengers() {
+    Route route = createRoute();
+    int generated = route.generateNewPassengers();
+    int waiting = 0;
+    for (Stop stop : route.getStops()) {
+      waiting += stop.getPassengers().size();
+    }
+    assertEquals(waiting, generated);
   }
 
 }

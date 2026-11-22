@@ -1,6 +1,7 @@
 package edu.umn.cs.csci3081w.project.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
@@ -32,7 +33,7 @@ public class StopTest {
   public Bus createBus() {
     Stop stop1 = new Stop(0, "test stop 1", new Position(-93.243774, 44.972392));
     Stop stop2 = new Stop(1, "test stop 2", new Position(-93.235071, 44.973580));
-    Stop stop3 = new Stop(2, "test stop 3", new Position(-93.226632, 44.975392));
+    Stop stop3 = new Stop(2, "test stop 2", new Position(-93.226632, 44.975392));
     List<Stop> stopsOut = new ArrayList<Stop>();
     stopsOut.add(stop1);
     stopsOut.add(stop2);
@@ -45,7 +46,7 @@ public class StopTest {
     probabilitiesOut.add(0.3);
     probabilitiesOut.add(.0);
     PassengerGenerator generatorOut = new RandomPassengerGenerator(stopsOut, probabilitiesOut);
-    Route testRouteOut = new Route(10, "testRouteOut",
+    Route testRouteOut = new Route(10, "testLine", "BUS", "testRouteOut",
         stopsOut, distancesOut, generatorOut);
     List<Stop> stopsIn = new ArrayList<>();
     stopsIn.add(stop3);
@@ -59,10 +60,10 @@ public class StopTest {
     probabilitiesIn.add(0.3);
     probabilitiesIn.add(.0);
     PassengerGenerator generatorIn = new RandomPassengerGenerator(stopsIn, probabilitiesIn);
-    Route testRouteIn = new Route(11, "testRouteIn",
+    Route testRouteIn = new Route(11, "testLine", "BUS", "testRouteIn",
         stopsIn, distancesIn, generatorIn);
-    Line line = new Line(10000, "testLine", "BUS", testRouteOut, testRouteIn);
-    return new Bus(0, line, 5, 1);
+    Line checkerLine = new Line(testRouteOut, testRouteIn);
+    return new Bus(0, checkerLine, 5, 1);
   }
 
   /**
@@ -233,5 +234,20 @@ public class StopTest {
     } catch (IOException ioe) {
       fail();
     }
+  }
+
+  /**
+   * Testing that updating a stop ages the passengers waiting at the stop.
+   */
+  @Test
+  public void testUpdate() {
+    Stop stop = new Stop(0, "test stop", new Position(-93.243774, 44.972392));
+    stop.addPassengers(new Passenger(1, "Goldy"));
+    stop.update();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PrintStream printStream = new PrintStream(outputStream);
+    stop.report(printStream);
+    printStream.flush();
+    assertTrue(outputStream.toString().contains("Wait at stop: 1"));
   }
 }

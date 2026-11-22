@@ -2,12 +2,23 @@ package edu.umn.cs.csci3081w.project.webserver;
 
 import com.google.gson.JsonObject;
 
+/**
+ * Command that moves the simulation forward one time step unless it is paused.
+ */
 public class UpdateCommand extends SimulatorCommand {
 
   private VisualTransitSimulator simulator;
+  private PauseCommand pauseCommand;
 
-  public UpdateCommand(VisualTransitSimulator simulator) {
+  /**
+   * Makes a command that updates the simulation.
+   *
+   * @param simulator the simulator to update
+   * @param pauseCommand the command that keeps track of whether the simulation is paused
+   */
+  public UpdateCommand(VisualTransitSimulator simulator, PauseCommand pauseCommand) {
     this.simulator = simulator;
+    this.pauseCommand = pauseCommand;
   }
 
   /**
@@ -18,7 +29,9 @@ public class UpdateCommand extends SimulatorCommand {
    */
   @Override
   public void execute(WebServerSession session, JsonObject command) {
-    simulator.update();
+    if (!pauseCommand.isPaused()) {
+      simulator.update();
+    }
   }
 
 }

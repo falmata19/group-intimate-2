@@ -3,6 +3,9 @@ package edu.umn.cs.csci3081w.project.model;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Makes passengers at random using the chance set for each stop.
+ */
 public class RandomPassengerGenerator extends PassengerGenerator {
 
   //variables to make testing deterministic
@@ -10,6 +13,12 @@ public class RandomPassengerGenerator extends PassengerGenerator {
   //deterministic probability value for testing
   public static final double DETERMINISTIC_VALUE = 0.1;
 
+  /**
+   * Makes a random passenger generator.
+   *
+   * @param stops the list of stops
+   * @param probabilities the chance of making a passenger at each stop
+   */
   public RandomPassengerGenerator(List<Stop> stops, List<Double> probabilities) {
     super(stops, probabilities);
   }

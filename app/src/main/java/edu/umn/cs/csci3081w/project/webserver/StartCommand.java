@@ -5,6 +5,9 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Command that starts the simulation.
+ */
 public class StartCommand extends SimulatorCommand {
 
   private VisualTransitSimulator simulator;

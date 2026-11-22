@@ -2,6 +2,9 @@ package edu.umn.cs.csci3081w.project.model;
 
 import java.util.Random;
 
+/**
+ * Makes passengers with a name and a destination.
+ */
 public class PassengerFactory {
   private static final String[] namePrefix;
   private static final String[] nameSuffix;

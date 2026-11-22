@@ -2,21 +2,31 @@ package edu.umn.cs.csci3081w.project.webserver;
 
 import com.google.gson.JsonObject;
 
+/**
+ * Command that pauses or resumes the simulation.
+ */
 public class PauseCommand extends SimulatorCommand {
-  private VisualTransitSimulator visSim;
 
-  public PauseCommand(VisualTransitSimulator visSim) {
-    this.visSim = visSim;
-  }
+  private boolean paused = false;
 
   /**
-   * Tells the simulator to pause the simulation.
+   * Pauses the simulation, or resumes it if it is already paused.
    *
-   * @param session object representing the simulation session
-   * @param command object containing the original command
+   * @param session current simulation session
+   * @param command the pause simulation command content
    */
   @Override
   public void execute(WebServerSession session, JsonObject command) {
-    visSim.togglePause();
+    paused = !paused;
   }
+
+  /**
+   * Checks if the simulation is paused.
+   *
+   * @return true if the simulation is paused
+   */
+  public boolean isPaused() {
+    return paused;
+  }
+
 }

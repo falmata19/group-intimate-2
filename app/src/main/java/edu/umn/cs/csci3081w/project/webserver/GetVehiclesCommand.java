@@ -7,10 +7,18 @@ import edu.umn.cs.csci3081w.project.model.Train;
 import edu.umn.cs.csci3081w.project.model.Vehicle;
 import java.util.List;
 
+/**
+ * Command that sends the active vehicles to the visualization module.
+ */
 public class GetVehiclesCommand extends SimulatorCommand {
 
   private VisualTransitSimulator simulator;
 
+  /**
+   * Makes a command that gets the vehicles.
+   *
+   * @param simulator the simulator to get the vehicles from
+   */
   public GetVehiclesCommand(VisualTransitSimulator simulator) {
     this.simulator = simulator;
   }
@@ -36,12 +44,11 @@ public class GetVehiclesCommand extends SimulatorCommand {
       String vehicleType = "";
       if (currVehicle instanceof Bus) {
         vehicleType = Bus.BUS_VEHICLE;
-
       } else if (currVehicle instanceof Train) {
         vehicleType = Train.TRAIN_VEHICLE;
       }
       s.addProperty("type", vehicleType);
-      s.addProperty("co2", currVehicle.getCurrentCO2Emission());
+      s.addProperty("co2", currVehicle.getCo2Emission());
       JsonObject jsonObject = new JsonObject();
       jsonObject.addProperty("longitude", currVehicle.getPosition().getLongitude());
       jsonObject.addProperty("latitude", currVehicle.getPosition().getLatitude());

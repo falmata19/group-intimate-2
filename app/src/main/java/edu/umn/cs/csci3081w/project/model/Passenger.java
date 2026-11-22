@@ -2,6 +2,9 @@ package edu.umn.cs.csci3081w.project.model;
 
 import java.io.PrintStream;
 
+/**
+ * A passenger who waits at a stop and then rides a vehicle to the stop they want to go to.
+ */
 public class Passenger {
 
   private String name;
@@ -37,6 +40,11 @@ public class Passenger {
     timeOnVehicle = 1;
   }
 
+  /**
+   * Checks if the passenger is on a vehicle.
+   *
+   * @return true if the passenger is on a vehicle
+   */
   public boolean isOnVehicle() {
     return timeOnVehicle > 0;
   }
@@ -59,11 +67,4 @@ public class Passenger {
     out.println("####Passenger Info End####");
   }
 
-  public int getWaitAtStop() {
-    return waitAtStop;
-  }
-
-  public int getTimeOnVehicle() {
-    return timeOnVehicle;
-  }
 }

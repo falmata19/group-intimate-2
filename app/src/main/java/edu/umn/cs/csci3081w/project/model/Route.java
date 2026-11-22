@@ -5,8 +5,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * A route with its stops in order, the distances between them, and a passenger generator.
+ */
 public class Route {
+  public static final String BUS_LINE = "BUS_LINE";
+  public static final String TRAIN_LINE = "TRAIN_LINE";
   private int id;
+  private String lineName;
+  private String lineType;
   private String name;
   private List<Stop> stops = new ArrayList<Stop>();
   private List<Double> distances = new ArrayList<Double>();
@@ -18,14 +25,18 @@ public class Route {
    * Route constructor.
    *
    * @param id  identifier for route
+   * @param lineName  name of the line
+   * @param lineType  line type
    * @param name      name of route
    * @param stops     stops on this route
    * @param distances distances between subsequent stops of this route
    * @param generator Passenger generating object
    */
-  public Route(int id, String name, List<Stop> stops,
+  public Route(int id, String lineName, String lineType, String name, List<Stop> stops,
                List<Double> distances, PassengerGenerator generator) {
     this.id = id;
+    this.lineName = lineName;
+    this.lineType = lineType;
     this.name = name;
     for (int i = 0; i < stops.size(); i++) {
       this.stops.add(stops.get(i));
@@ -54,7 +65,7 @@ public class Route {
     for (int i = 0; i < this.stops.size() - 1; i++) {
       distances.add(this.distances.get(i));
     }
-    Route shallowCopy = new Route(this.id, this.name, stops,
+    Route shallowCopy = new Route(this.id, this.lineName, this.lineType, this.name, stops,
         distances, this.generator);
     return shallowCopy;
   }
@@ -78,6 +89,8 @@ public class Route {
   public void report(PrintStream out) {
     out.println("####Route Info Start####");
     out.println("ID: " + this.id);
+    out.println("Line name: " + this.lineName);
+    out.println("Line type: " + this.lineType);
     out.println("Name: " + this.name);
     out.println("Num stops: " + this.stops.size());
     int stopCounter = 0;
@@ -98,6 +111,11 @@ public class Route {
     out.println("####Route Info End####");
   }
 
+  /**
+   * Checks if the route is past its last stop.
+   *
+   * @return true if the route is at the end
+   */
   public boolean isAtEnd() {
     return nextStopIndex >= stops.size();
   }
@@ -175,5 +193,13 @@ public class Route {
 
   public int getNextStopIndex() {
     return nextStopIndex;
+  }
+
+  public String getLineName() {
+    return lineName;
+  }
+
+  public String getLineType() {
+    return lineType;
   }
 }

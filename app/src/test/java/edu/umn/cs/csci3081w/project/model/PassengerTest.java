@@ -1,115 +1,104 @@
 package edu.umn.cs.csci3081w.project.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class PassengerTest {
 
-  /**
-   * Setup operations before each test runs.
-   */
-
-  private Passenger passenger;
-
-  @BeforeEach
-  public void setUp() {
-    passenger = new Passenger(5, "testPassenger");
-  }
-
-
-  /**
-   * Testing state after using constructor.
-   */
-  @Test
-  public void testConstructorNormal() {
-    assertEquals(false, passenger.isOnVehicle());
-    assertEquals(5, passenger.getDestination());
+  private String reportOf(Passenger passenger) {
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PrintStream printStream = new PrintStream(outputStream);
+    passenger.report(printStream);
+    printStream.flush();
+    return outputStream.toString();
   }
 
   /**
-   * Testing state after using constructor.
+   * Tests the state of a passenger after using the constructor.
    */
   @Test
-  public void testPassUpdate() {
+  public void testConstructor() {
+    Passenger passenger = new Passenger(3, "Goldy");
+    assertEquals(3, passenger.getDestination());
+    assertFalse(passenger.isOnVehicle());
+  }
+
+  /**
+   * Tests that a passenger waiting at a stop accumulates wait time on each update.
+   */
+  @Test
+  public void testPasUpdateWaitingAtStop() {
+    Passenger passenger = new Passenger(3, "Goldy");
     passenger.pasUpdate();
-    assertEquals(passenger.getWaitAtStop(), 1);
+    passenger.pasUpdate();
+    String report = reportOf(passenger);
+    assertTrue(report.contains("Wait at stop: 2"));
+    assertTrue(report.contains("Time on vehicle: 0"));
+  }
+
+  /**
+   * Tests that a passenger on a vehicle accumulates ride time on each update.
+   */
+  @Test
+  public void testPasUpdateOnVehicle() {
+    Passenger passenger = new Passenger(3, "Goldy");
     passenger.setOnVehicle();
     passenger.pasUpdate();
-    assertEquals(passenger.getWaitAtStop(), 1);
-    assertEquals(passenger.getTimeOnVehicle(), 2);
+    String report = reportOf(passenger);
+    assertTrue(report.contains("Wait at stop: 0"));
+    assertTrue(report.contains("Time on vehicle: 2"));
   }
 
   /**
-   * Tests if isOnVehicle return the right value.
-   */
-  @Test
-  public void testIsOnVehicle() {
-    assertEquals(false, passenger.isOnVehicle());
-    passenger.setOnVehicle();
-    assertEquals(true, passenger.isOnVehicle());
-
-  }
-
-  /**
-   * Tests if setOnVehicle function works properly.
+   * Tests that setting a passenger on a vehicle starts the ride time at one.
    */
   @Test
   public void testSetOnVehicle() {
-    assertEquals(0, passenger.getTimeOnVehicle());
+    Passenger passenger = new Passenger(3, "Goldy");
     passenger.setOnVehicle();
-    assertEquals(1, passenger.getTimeOnVehicle());
-
+    assertTrue(passenger.isOnVehicle());
+    assertTrue(reportOf(passenger).contains("Time on vehicle: 1"));
   }
 
   /**
-   * Tests reporting functionality, as well as the time on vehicle/time at stop updates.
+   * Tests that a passenger is not on a vehicle until set on one.
+   */
+  @Test
+  public void testIsOnVehicle() {
+    Passenger passenger = new Passenger(3, "Goldy");
+    assertFalse(passenger.isOnVehicle());
+    passenger.setOnVehicle();
+    assertTrue(passenger.isOnVehicle());
+  }
+
+  /**
+   * Tests that the destination stop id passed to the constructor is returned.
+   */
+  @Test
+  public void testGetDestination() {
+    Passenger passenger = new Passenger(7, "Gopher");
+    assertEquals(7, passenger.getDestination());
+  }
+
+  /**
+   * Tests the report output of a new passenger.
    */
   @Test
   public void testReport() {
-
-    passenger.pasUpdate();
-    passenger.pasUpdate();
-    passenger.setOnVehicle();
-    passenger.pasUpdate();
-
-    try {
-      final Charset charset = StandardCharsets.UTF_8;
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      PrintStream testStream = new PrintStream(outputStream, true, charset.name());
-      passenger.report(testStream);
-      outputStream.flush();
-      String data = new String(outputStream.toByteArray(), charset);
-      testStream.close();
-      outputStream.close();
-      String strToCompare =
-          "####Passenger Info Start####" + System.lineSeparator()
-              + "Name: testPassenger" + System.lineSeparator()
-              + "Destination: 5" + System.lineSeparator()
-              + "Wait at stop: 2" + System.lineSeparator()
-              + "Time on vehicle: 2" + System.lineSeparator()
-              + "####Passenger Info End####" + System.lineSeparator();
-      assertEquals(data, strToCompare);
-    } catch (IOException ioe) {
-      fail();
-    }
-  }
-
-
-  /**
-   * Clean up our variables after each test.
-   */
-  @AfterEach
-  public void cleanUpEach() {
-    passenger = null;
+    Passenger passenger = new Passenger(3, "Goldy");
+    String expected =
+        "####Passenger Info Start####" + System.lineSeparator()
+            + "Name: Goldy" + System.lineSeparator()
+            + "Destination: 3" + System.lineSeparator()
+            + "Wait at stop: 0" + System.lineSeparator()
+            + "Time on vehicle: 0" + System.lineSeparator()
+            + "####Passenger Info End####" + System.lineSeparator();
+    assertEquals(expected, reportOf(passenger));
   }
 
 }

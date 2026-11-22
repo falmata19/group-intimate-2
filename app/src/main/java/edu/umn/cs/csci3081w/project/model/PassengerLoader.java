@@ -2,6 +2,9 @@ package edu.umn.cs.csci3081w.project.model;
 
 import java.util.List;
 
+/**
+ * Puts passengers on a vehicle.
+ */
 public class PassengerLoader {
 
   /**

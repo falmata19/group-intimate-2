@@ -3,6 +3,9 @@ package edu.umn.cs.csci3081w.project.model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Takes passengers off a vehicle at a stop.
+ */
 public class PassengerUnloader {
 
   /**

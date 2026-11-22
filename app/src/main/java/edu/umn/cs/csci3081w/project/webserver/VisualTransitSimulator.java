@@ -1,6 +1,5 @@
 package edu.umn.cs.csci3081w.project.webserver;
 
-import com.google.gson.JsonObject;
 import edu.umn.cs.csci3081w.project.model.Bus;
 import edu.umn.cs.csci3081w.project.model.Counter;
 import edu.umn.cs.csci3081w.project.model.Line;
@@ -11,44 +10,38 @@ import edu.umn.cs.csci3081w.project.model.Vehicle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Runs the simulation by making vehicles, moving them along their routes, and updating the routes
+ * and stops.
+ */
 public class VisualTransitSimulator {
 
   private static boolean LOGGING = false;
   private int numTimeSteps = 0;
   private int simulationTimeElapsed = 0;
   private Counter counter;
-  private List<Line> lines;
   private List<Route> routes;
   private List<Vehicle> activeVehicles;
   private List<Vehicle> completedTripVehicles;
   private List<Integer> vehicleStartTimings;
   private List<Integer> timeSinceLastVehicle;
   private StorageFacility storageFacility;
-  private WebServerSession webServerSession;
-  private boolean paused = false;
 
   /**
    * Constructor for Simulation.
    *
    * @param configFile file containing the simulation configuration
-   * @param webServerSession session associated with the simulation
    */
-  public VisualTransitSimulator(String configFile, WebServerSession webServerSession) {
-    this.webServerSession = webServerSession;
+  public VisualTransitSimulator(String configFile) {
     this.counter = new Counter();
     ConfigManager configManager = new ConfigManager();
     configManager.readConfig(counter, configFile);
-    this.lines = configManager.getLines();
     this.routes = configManager.getRoutes();
+    this.storageFacility = configManager.getStorageFacility();
     this.activeVehicles = new ArrayList<Vehicle>();
     this.completedTripVehicles = new ArrayList<Vehicle>();
     this.vehicleStartTimings = new ArrayList<Integer>();
     this.timeSinceLastVehicle = new ArrayList<Integer>();
-    this.storageFacility = configManager.getStorageFacility();
-    if (this.storageFacility == null) {
-      this.storageFacility = new StorageFacility(Integer.MAX_VALUE, Integer.MAX_VALUE);
-    }
-
     if (VisualTransitSimulator.LOGGING) {
       System.out.println("////Simulation Routes////");
       for (int i = 0; i < routes.size(); i++) {
@@ -73,95 +66,71 @@ public class VisualTransitSimulator {
   }
 
   /**
-   * Toggles the pause state of the simulation.
-   */
-  public void togglePause() {
-    paused = !paused;
-  }
-
-  /**
    * Updates the simulation at each step.
    */
   public void update() {
-    if (!paused) {
-      simulationTimeElapsed++;
-      if (simulationTimeElapsed > numTimeSteps) {
-        return;
-      }
-      System.out.println("~~~~The simulation time is now at time step "
-          + simulationTimeElapsed + "~~~~");
-      // generate vehicles
-      for (int i = 0; i < timeSinceLastVehicle.size(); i++) {
-        if (timeSinceLastVehicle.get(i) <= 0) {
-          Route outbound = routes.get(2 * i);
-          Route inbound = routes.get(2 * i + 1);
-          Line line = findLineBasedOnRoute(outbound);
-          if (line.getType().equals(Line.BUS_LINE)) {
-            if (storageFacility.getBusesNum() > 0) {
-              activeVehicles
-                  .add(new Bus(counter.getBusIdCounterAndIncrement(), line.shallowCopy(),
-                      Bus.CAPACITY, Bus.SPEED));
-              this.storageFacility.decrementBusesNum();
-            }
-            timeSinceLastVehicle.set(i, vehicleStartTimings.get(i));
-            timeSinceLastVehicle.set(i, timeSinceLastVehicle.get(i) - 1);
-          } else if (line.getType().equals(Line.TRAIN_LINE)) {
-            if (storageFacility.getTrainsNum() > 0) {
-              activeVehicles
-                  .add(new Train(counter.getTrainIdCounterAndIncrement(), line.shallowCopy(),
-                      Train.CAPACITY, Train.SPEED));
-              this.storageFacility.decrementTrainsNum();
-            }
-            timeSinceLastVehicle.set(i, vehicleStartTimings.get(i));
-            timeSinceLastVehicle.set(i, timeSinceLastVehicle.get(i) - 1);
+    simulationTimeElapsed++;
+    if (simulationTimeElapsed > numTimeSteps) {
+      return;
+    }
+    System.out.println("~~~~The simulation time is now at time step "
+        + simulationTimeElapsed + "~~~~");
+    // generate vehicles
+    for (int i = 0; i < timeSinceLastVehicle.size(); i++) {
+      if (timeSinceLastVehicle.get(i) <= 0) {
+        Route outbound = routes.get(2 * i);
+        Route inbound = routes.get(2 * i + 1);
+        if (outbound.getLineType().equals(Route.BUS_LINE)
+            && inbound.getLineType().equals(Route.BUS_LINE)) {
+          if (storageFacility.getBusesNum() > 0) {
+            activeVehicles.add(new Bus(counter.getBusIdCounterAndIncrement(),
+                    new Line(outbound.shallowCopy(), inbound.shallowCopy()),
+                    Bus.CAPACITY, Bus.SPEED));
+            storageFacility.decrementBus();
           }
-        } else {
+          timeSinceLastVehicle.set(i, vehicleStartTimings.get(i));
+          timeSinceLastVehicle.set(i, timeSinceLastVehicle.get(i) - 1);
+        } else if (outbound.getLineType().equals(Route.TRAIN_LINE)
+            && inbound.getLineType().equals(Route.TRAIN_LINE)) {
+          if (storageFacility.getTrainsNum() > 0) {
+            activeVehicles.add(new Train(counter.getTrainIdCounterAndIncrement(),
+                    new Line(outbound.shallowCopy(), inbound.shallowCopy()),
+                    Train.CAPACITY, Train.SPEED));
+            storageFacility.decrementTrain();
+          }
+          timeSinceLastVehicle.set(i, vehicleStartTimings.get(i));
           timeSinceLastVehicle.set(i, timeSinceLastVehicle.get(i) - 1);
         }
+      } else {
+        timeSinceLastVehicle.set(i, timeSinceLastVehicle.get(i) - 1);
       }
-      // update vehicles
-      for (int i = activeVehicles.size() - 1; i >= 0; i--) {
-        Vehicle currVehicle = activeVehicles.get(i);
-        currVehicle.update();
-        if (currVehicle.isTripComplete()) {
-          Vehicle completedTripVehicle = activeVehicles.remove(i);
-          completedTripVehicles.add(completedTripVehicle);
-          if (completedTripVehicle instanceof Bus) {
-            this.storageFacility.incrementBusesNum();
-          } else if (completedTripVehicle instanceof Train) {
-            this.storageFacility.incrementTrainsNum();
-          }
-        } else {
-          if (VisualTransitSimulator.LOGGING) {
-            currVehicle.report(System.out);
-          }
+    }
+    // update vehicles
+    for (int i = activeVehicles.size() - 1; i >= 0; i--) {
+      Vehicle currVehicle = activeVehicles.get(i);
+      currVehicle.update();
+      if (currVehicle.isTripComplete()) {
+        Vehicle completedTripVehicle = activeVehicles.remove(i);
+        completedTripVehicles.add(completedTripVehicle);
+        if (completedTripVehicle instanceof Bus) {
+          storageFacility.incrementBus();
+        } else if (completedTripVehicle instanceof Train) {
+          storageFacility.incrementTrain();
         }
-      }
-      // update routes
-      for (int i = 0; i < routes.size(); i++) {
-        Route currRoute = routes.get(i);
-        currRoute.update();
+      } else {
         if (VisualTransitSimulator.LOGGING) {
-          currRoute.report(System.out);
+          currVehicle.report(System.out);
         }
       }
     }
-  }
-
-  /**
-   * Method to find the line of a route.
-   *
-   * @param route route to search
-   * @return Line containing route
-   */
-  public Line findLineBasedOnRoute(Route route) {
-    for (Line line : lines) {
-      if (line.getOutboundRoute().getId() == route.getId()
-          || line.getInboundRoute().getId() == route.getId()) {
-        return line;
+    // update routes
+    for (int i = 0; i < routes.size(); i++) {
+      Route currRoute = routes.get(i);
+      currRoute.update();
+      if (VisualTransitSimulator.LOGGING) {
+        currRoute.report(System.out);
       }
     }
-    throw new RuntimeException("Could not find the line of the route");
   }
 
   public List<Route> getRoutes() {

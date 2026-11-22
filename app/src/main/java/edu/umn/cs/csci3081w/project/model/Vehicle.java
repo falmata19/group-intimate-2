@@ -4,6 +4,9 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A vehicle that carries passengers along routes.
+ */
 public abstract class Vehicle {
   private int id;
   private int capacity;
@@ -35,17 +38,37 @@ public abstract class Vehicle {
     this.passengers = new ArrayList<Passenger>();
   }
 
+  /**
+   * Prints info about the vehicle.
+   *
+   * @param out the stream to print to
+   */
   public abstract void report(PrintStream out);
 
+  /**
+   * Checks if the vehicle finished its trip.
+   *
+   * @return true if the trip is done
+   */
   public abstract boolean isTripComplete();
 
+  /**
+   * Puts a passenger on the vehicle.
+   *
+   * @param newPassenger the passenger to put on the vehicle
+   * @return how many passengers got on
+   */
   public abstract int loadPassenger(Passenger newPassenger);
 
+  /**
+   * Moves the vehicle along its route.
+   */
   public abstract void move();
 
+  /**
+   * Updates the vehicle for one time step.
+   */
   public abstract void update();
-
-  public abstract int getCurrentCO2Emission();
 
   public int getId() {
     return id;
@@ -86,4 +109,9 @@ public abstract class Vehicle {
   public void setPosition(Position position) {
     this.position = position;
   }
+
+  /**
+   * Returns the CO2 the vehicle is producing right now.
+   */
+  public abstract int getCo2Emission();
 }

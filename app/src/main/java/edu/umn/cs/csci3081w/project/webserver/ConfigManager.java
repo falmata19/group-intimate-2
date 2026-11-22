@@ -1,7 +1,6 @@
 package edu.umn.cs.csci3081w.project.webserver;
 
 import edu.umn.cs.csci3081w.project.model.Counter;
-import edu.umn.cs.csci3081w.project.model.Line;
 import edu.umn.cs.csci3081w.project.model.Position;
 import edu.umn.cs.csci3081w.project.model.RandomPassengerGenerator;
 import edu.umn.cs.csci3081w.project.model.Route;
@@ -9,12 +8,13 @@ import edu.umn.cs.csci3081w.project.model.Stop;
 import edu.umn.cs.csci3081w.project.model.StorageFacility;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 import org.apache.commons.io.FileUtils;
 
+/**
+ * Reads the config file and keeps the routes and the storage facility from it.
+ */
 public class ConfigManager {
   private static final String LINE_START = "LINE_START";
   private static final String LINE_END = "LINE_END";
@@ -22,17 +22,15 @@ public class ConfigManager {
   private static final String ROUTE_END = "ROUTE_END";
   private static final String BUS_LINE = "BUS_LINE";
   private static final String TRAIN_LINE = "TRAIN_LINE";
-  private static final String STORAGE_FACILITY_START = "STORAGE_FACILITY_START";
-  private static final String BUSES = "BUSES";
-  private static final String TRAINS = "TRAINS";
-  private static final String STOP = "STOP";
 
-  private List<Line> lines = new ArrayList<Line>();
   private List<Route> routes = new ArrayList<Route>();
   private StorageFacility storageFacility;
 
+  /**
+   * Makes a config manager.
+   */
   public ConfigManager() {
-    storageFacility = null;
+
   }
 
   /**
@@ -55,24 +53,21 @@ public class ConfigManager {
         String line = scanner.nextLine();
         String[] splits = line.split(",");
         String chunk = splits[0].trim();
-        if (chunk.equals(ConfigManager.LINE_START)) {
+        if (chunk.equals(LINE_START)) {
           currLineType = "";
           String lineTypeFromConfig = splits[1].trim();
           if (lineTypeFromConfig.equals(ConfigManager.BUS_LINE)) {
-            currLineType = Line.BUS_LINE;
+            currLineType = Route.BUS_LINE;
           } else if (lineTypeFromConfig.equals(ConfigManager.TRAIN_LINE)) {
-            currLineType = Line.TRAIN_LINE;
+            currLineType = Route.TRAIN_LINE;
           }
           currLineName = splits[2].trim();
-        } else if (chunk.equals(ConfigManager.LINE_END)) {
-          lines.add(new Line(counter.getLineIdCounterAndIncrement(),
-              currLineName, currLineType,
-              routes.get(routes.size() - 2), routes.get(routes.size() - 1)));
+        } else if (chunk.equals(LINE_END)) {
           currLineType = "";
           currLineName = "";
-        } else if (chunk.equals(ConfigManager.ROUTE_START)) {
+        } else if (chunk.equals(ROUTE_START)) {
           currRouteName = splits[1].trim();
-        } else if (chunk.equals(ConfigManager.ROUTE_END)) {
+        } else if (chunk.equals(ROUTE_END)) {
           if (stops.size() > 0) {
             List<Double> distances = new ArrayList<Double>();
             for (int stopIndex = 1; stopIndex < stops.size(); ++stopIndex) {
@@ -90,14 +85,14 @@ public class ConfigManager {
               distances.add(dist);
             }
             routes.add(
-                new Route(counter.getRouteIdCounterAndIncrement(),
+                new Route(counter.getRouteIdCounterAndIncrement(), currLineName, currLineType,
                     currRouteName, stops, distances,
                     new RandomPassengerGenerator(stops, probabilities)));
             currRouteName = "";
             stops.clear();
             probabilities.clear();
           }
-        } else if (chunk.equals(ConfigManager.STOP)) {
+        } else if (chunk.equals("STOP")) {
           String currStopName = splits[1].trim();
           double currStopLatitude = Double.valueOf(splits[2].trim());
           double currStopLongitude = Double.valueOf(splits[3].trim());
@@ -105,14 +100,14 @@ public class ConfigManager {
           probabilities.add(probability);
           stops.add(new Stop(counter.getStopIdCounterAndIncrement(), currStopName,
               new Position(currStopLongitude, currStopLatitude)));
-        } else if (chunk.equals(ConfigManager.STORAGE_FACILITY_START)) {
-          this.storageFacility = new StorageFacility();
-        } else if (chunk.equals(ConfigManager.BUSES)) {
-          int numBuses = Integer.parseInt(splits[1].trim());
-          this.storageFacility.setBusesNum(numBuses);
-        } else if (chunk.equals(ConfigManager.TRAINS)) {
-          int numTrains = Integer.parseInt(splits[1].trim());
-          this.storageFacility.setTrainsNum(numTrains);
+        } else if (chunk.equals("STORAGE_FACILITY_START")) {
+          storageFacility = new StorageFacility();
+        } else if (chunk.equals("BUSES")) {
+          int buses = Integer.parseInt(splits[1].trim());
+          storageFacility.setBusesNum(buses);
+        } else if (chunk.equals("TRAINS")) {
+          int trains = Integer.parseInt(splits[1].trim());
+          storageFacility.setTrainsNum(trains);
         }
       }
       scanner.close();
@@ -121,13 +116,10 @@ public class ConfigManager {
     }
   }
 
-  public List<Line> getLines() {
-    return lines;
-  }
-
   public List<Route> getRoutes() {
     return routes;
   }
+
 
   public StorageFacility getStorageFacility() {
     return storageFacility;
