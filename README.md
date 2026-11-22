@@ -1,17 +1,13 @@
 # Visual Transit Simulator: Project Iteration 2
 
-Some AI usage is permitted, but not required, see specific task for details.
 
-* Tasks 1 and 2: AI Usage Level 2
-* Task 3: AI Usage Level 2
-* Tasks 4-12: AI Usage Level 1, AI assistance may be enabled for code completion for full lines of code (e.g., [IntelliJ's Full Line Code Completion](https://www.jetbrains.com/help/idea/full-line-code-completion.html)), but you may not use AI assistants to generate code.
-  * Guideline: If AI is writing more than a line of code at a time, you should not be using it.
+
 
 ## The Visual Transit Simulator Software
 
 In the project iterations, you will be working on a visual transit simulator (VTS) software. The current VTS software models vehicle transit around the University of Minnesota campus. Specifically, the software simulates the behavior of vehicles and passengers on campus. The VTS software currently supports two types of vehicles: buses and trains. Vehicles provide service for a line. A line is made by two routes: an outbound and an inbound route. Vehicles go along a route, make stops, and pick up/drop off passengers. The simulation operates over a certain number of time units. In each time unit, the VTS software updates the state of the simulation by creating passengers at stops, moving vehicles along the routes, allowing a vehicle to pick up passengers at a stop, etc. The simulation is configured using a *configuration* file that specifies the simulated lines, the stops of the routes, and how likely it is that a passenger will show up at a certain stop at each time unit. Routes must be defined in pairs, that is, there should be both an outbound and inbound route and the routes should be specified one after the other. The ending stop of the outbound route should be at the same location as the starting stop of the inbound route and the ending stop of the inbound route should be at the same location as the starting stop of the outbound route. However, stops between the starting and ending stops of outbound and inbound routes can be at different locations. After a vehicle has passed a stop, it is possible for passengers to show up at stops that the vehicle has already passed. For this reason, the simulator supports the creation of multiple vehicles and these vehicles will go and pick up the new passengers. Each vehicle has its own understanding of its own route, but the stops have relationships with multiple vehicles serving the same line. Vehicles do not make more than one trip in the line they serve. When a vehicle finishes both of its routes (outbound and inbound), the vehicle exits the simulation.
 
-The VTS software is divided into two main modules: the *visualization module* and the *simulator module*. The visualization module displays the state of the simulation in a browser, while the simulator module performs the simulation. The visualization module is a web client application that runs in a browser and it is written in Javascript and HTML. The visualization module code is inside the `<dir>/app/src/main/webapp/web_graphics` directory of this repo (where `<dir>` is the root directory of the repo). The simulator module is a web server application written in Java. The simulator module code is inside the `<dir>/app/src/main/java/edu/umn/cs/csci3081w/project` directory. The simulator module is divided into two parts: *model classes* and the *webserver classes*. The model classes model real-world entities (e.g., the concept of a vehicle) and the code is inside the `<dir>/app/src/main/java/edu/umn/cs/csci3081w/project/model` directory. The webserver classes include the code that orchestrates the simulation and is inside the `<dir>/app/src/main/java/edu/umn/cs/csci3081w/project/webserver` directory. The visualization module and the simulator module communicate with each other using [websockets](https://www.baeldung.com/java-websockets).
+The VTS software is divided into two main modules: the *visualization module* and the *simulator module*. The visualization module displays the state of the simulation in a browser, while the simulator module performs the simulation. The visualization module is a web client application that runs in a browser and it is written in Javascript and HTML. The visualization module code is inside the `<dir>/app/src/main/webapp/web_graphics` directory of this repo (where `<dir>` is the root directory of the repo). The simulator module is a web server application written in Java. The simulator module code is inside the `<dir>/app/src/main/java/edu/umn/cs/csci3081w/project` directory. The simulator module is divided into two parts: *model classes* and the *webserver classes*. The model classes model real-world entities (e.g., the concept of a vehicle) and the code is inside the `<dir>/app/src/mn/java/edu/umn/cs/csci3081w/project/model` directory. The webserver classes include the code that orchestrates the simulation and is inside the `<dir>/app/src/main/java/edu/umn/cs/csci3081w/project/webserver` directory. The visualization module and the simulator module communicate with each other using [websockets](https://www.baeldung.com/java-websockets).
 
 The user of the VTS software interacts with the visualization module using the browser and can specify how long the simulation will run (i.e., how many time units) and how often new vehicles will be added to a route in the simulation. The user also specifies when to start and pause the simulation. The image below depicts the graphical user interface (GUI) of the current version of the VTS software.
 
@@ -103,55 +99,33 @@ We suggest you define a tasks-oriented timeline for your team so that you can ma
 This section details the tasks that your team needs to perform in this project iteration.
 
 #### Task 1: Update the UML class diagram for the model classes
-AI Usage Level 2 - AI Permitted for UML Code Generation, see details after task description
 
 In this task, you should update the UML class diagram of the model classes (i.e., classes in the `<dir>/app/src/main/java/edu/umn/cs/csci3081w/project/model` directory) to account for the changes/additions required in this project iteration. If necessary, provide a description inside `<dir>/app/doc/overview.html` to clarify the subtleties that are essential to understand the diagram and the design decisions you made. In this project iteration, you do not need to represent cardinalities in the diagram.
 
 You should update the diagram image in `<dir>/app/doc/diagrams`. You can generate the HTML Javadoc documentation, which includes this diagram, by running `./gradlew clean javadoc`.
 
-AI Usage Level 2 - AI Permitted for UML Code Generation Details:
-* You may:
-  * Use AI assistance to generate code for "diagrams-as-code" tools such as [Mermaid](https://mermaid.js.org/)/[PlantUML](https://plantuml.com/) by providing prompts/code you have written.
-* You may not: 
-  * Supply code/other material to an AI assistant that you don’t have explicit permission to use.  
-* When in doubt, ask questions on Piazza. 
+
 
 
 #### Task 2: Update the UML class diagram for the webserver classes
-AI Usage Level 2 - AI Permitted for UML Code Generation, see details after task description
 
 In this task, you should update the UML class diagram of the webserver classes (i.e., classes in the `<dir>/app/src/main/java/edu/umn/cs/csci3081w/project/webserver` directory) to account for the changes/additions required in this project iteration. If necessary, provide a description inside `<dir>/app/doc/overview.html` to clarify the subtleties that are essential to understand the diagram and the design decisions you made. In this project iteration, you do not need to represent cardinalities in the diagram.
 
 You should update the diagram image in `<dir>/app/doc/diagrams`. You can generate the HTML Javadoc documentation, which includes this diagram, by running `./gradlew clean javadoc`.
 
-AI Usage Level 2 - AI Permitted for UML Code Generation Details:
-* You may:
-  * Use AI assistance to generate code for "diagrams-as-code" tools such as [Mermaid](https://mermaid.js.org/)/[PlantUML](https://plantuml.com/) by providing prompts/code you have written.
-* You may not: 
-  * Supply code/other material to an AI assistant that you don’t have explicit permission to use. 
-* When in doubt, ask questions on Piazza. 
 
 #### Task 3: Create a Javadoc documentation for the code in the simulator module
-AI Usage Level 2 - AI Permitted for Javadoc Comment Generation, see details after task description
 
 You should create Javadoc comments according to the Google Java code style guidelines we provided. In other words, add comments where the Google Java code style guidelines require your team to do so. You can generate the HTML Javadoc documentation by running `./gradlew javadoc` (or `./gradlew clean javadoc`).
 
-AI Usage Level 2 - AI Permitted for Javadoc Comment Generation
-* You may
-  * Let AI generate Javadoc comments for your code you have written
-* But you must
-  * Indicate that you have verified the accuracy of the generated Javadoc 
-    * At end of description portion of Javadoc (before tags) - “Generated by <AI source>, verified by <your name>.” where you put in the AI source and your name.
-  * Fix its mistakes (including being technically correct but overly verbose)
+
 
 
 #### Task 4: Make sure that the code conforms to the Google Java code style guidelines
-AI Usage Level 1 - AI assistance for full line code completion (if AI is writing more than a line of code at a time, you should not be using it)
 
 Consistency in code organization, naming conventions, file structure, and formatting makes code easier to read and integrate. In this project, the team will follow the Google Java code style guidelines. These guidelines are provided in the `<dir>/app/config/checkstyle/google_checks.xml` code style file. The team needs to make sure that the code produced in this project iteration (both source and test code) complies with the rules in `<dir>/app/config/checkstyle/google_checks.xml`. Both source and test code should conform to the rules. You can check if the code conforms to the code style rules by running `./gradlew check` or (`./gradlew clean check`).
 
 #### Task 5: Refactoring 1 - Refactor duplicate methods in `Bus` and `Train`
-AI Usage Level 1 - AI assistance for full line code completion (if AI is writing more than a line of code at a time, you should not be using it)
 
 In project iteration 1, you might have noticed that certain methods have the same implementation in the `Bus` and `Train` classes. In this task, you should move the implementation of those methods (e.g., `update()`) to their super class (i.e., `Vehicle`).
 
@@ -159,7 +133,6 @@ Your team needs to create a GitHub issue to indicate that your team is working o
 
 
 #### Task 6: Refactoring 2 - Remove `private List<Route> routes` attribute in `VisualTransitSimulator`
-AI Usage Level 1 - AI assistance for full line code completion (if AI is writing more than a line of code at a time, you should not be using it)
 
 In the current codebase, the `VisualTransitSimulator` class has both the `List<Route> routes` and `List<Line> lines` attributes. In this refactoring, you should delete the `List<Route> routes` attribute and make suitable changes so that the class only uses the `List<Line> lines` attribute and the information contained in the list.
 
@@ -167,7 +140,6 @@ Your team needs to create a GitHub issue to indicate that your team is working o
 
 
 #### Task 7: Feature 1 - Represent `SmallBus`, `LargeBus`, `ElectricTrain`, and `DieselTrain` in the simulator
-AI Usage Level 1 - AI assistance for full line code completion (if AI is writing more than a line of code at a time, you should not be using it)
 
 The simulator will now need to support the use of four types of vehicles: `SmallBus`, `LargeBus`, `ElectricTrain`, and `DieselTrain`. `SmallBus` and `LargeBus` need to extend the `Bus` class. A small bus has a capacity of 20 passengers. A large bus has a capacity of 80 passengers. The CO2 consumption of a small bus is two unit for every passenger present on the bus at a certain time unit plus a constant value of three CO2 unit. The CO2 consumption of a large bus is two unit for every passenger present on the bus at a certain time unit plus a constant value of five CO2 units. `ElectricTrain` and `DieselTrain` need to extend the `Train` class.  Electric trains have zero CO2 consumption. Diesel trains consume three CO2 units for every passenger present on the train at a certain time unit plus a constant value of six CO2 units.
 
@@ -189,7 +161,6 @@ All the classes associated with this feature need to be model classes (i.e., ins
 
 
 #### Task 8: Feature 2 - Generate buses according to strategies
-AI Usage Level 1 - AI assistance for full line code completion (if AI is writing more than a line of code at a time, you should not be using it)
 
 To enhance the simulator, your team needs to create the "time of day" bus deployment strategy. The "time of day" bus deployment strategy determines the size of the bus based on the time of the day. Specifically, this bus deployment strategy needs to adhere to the following specifications:
 
@@ -215,7 +186,6 @@ Each time the simulation is required to create a new bus, it must use the type o
 All the classes associated with this feature need to be model classes (i.e., inside `<dir>/app/src/main/java/edu/umn/cs/csci3081w/project/model`). This feature needs to be implemented using the factory method and the strategy design patterns. Your team needs to create a GitHub issue to indicate that your team is working on this feature. The title of the issues should be "Feature 2 - Generate buses according to strategies". This task needs to be performed in a branch called `Feature2`. Your team needs to create a GitHub pull request to merge the changes into main. When your team is happy with the solution to this task, one of the team members needs to merge the `Feature2` branch into the `main` branch.
 
 #### Task 9: Feature 3 - Generate trains according to strategies
-AI Usage Level 1 - AI assistance for full line code completion (if AI is writing more than a line of code at a time, you should not be using it)
 
 To enhance the simulator, your team needs to create the "time of day" train deployment strategy. The "time of day" train deployment strategy determines the type of train based on the time of the day. Specifically, this train deployment strategy needs to adhere to the following specifications:
 
@@ -242,7 +212,6 @@ All the classes associated with this feature need to be model classes (i.e., ins
 
 
 #### Task 10: Feature 4 - Observe detailed CO2 consumption of a vehicle
-AI Usage Level 1 - AI assistance for full line code completion (if AI is writing more than a line of code at a time, you should not be using it)
 
 In this task, you need to extend the simulator module so that the VTS software is able to display the CO2 consumption from each of the latest five time units. The user can request this information by clicking on a vehicle in the visualization module. The information displayed in the visualization module for a bus must have the following format:
 
@@ -262,14 +231,12 @@ This feature must be implemented using the observer design pattern. This feature
 Your team needs to create a GitHub issue to indicate that your team is working on this feature. The title of the issues should be "Feature 4 - Observe detailed CO2 consumption of a vehicle". This task needs to be performed in a branch called `Feature4`. Your team needs to create a GitHub pull request to merge the changes into main. When your team is happy with the solution to this task, one of the team members needs to merge the `Feature4` branch into the `main` branch.
 
 #### Task 11: Feature 5 - Simulate line issues
-AI Usage Level 1 - AI assistance for full line code completion (if AI is writing more than a line of code at a time, you should not be using it)
 
 In this feature, we would like to simulate the behavior of issues happening on bus and train lines. The visualization module was extended to support the feature by adding a dropdown menu below the Pause/Resume button. The dropdown menu contains the bus and train lines associated with the simulation. After the simulation has started, the user should be able to select a line from the dropdown menu to simulate an issue on the line. The issues affect the movement of vehicles on that line. That is, vehicles on that line should not move for 10 time units from the time the line was selected by the user. For example, if a bus line was selected at time unit 23, then the buses on that line would not move until time step 33. This feature must respond to the `lineIssue` command that contains the `id` of the user-selected line. This command is received as a [JSON object](https://www.w3schools.com/js/js_json_objects.asp) by the simulator module and has this format: `{"command":"lineIssue","id":"LINE_ID"}` (`LINE_ID` is the line identifier).
 
 This feature must suitably extend the command pattern used by other parts of the simulator. Your team needs to create a GitHub issue to indicate that your team is working on this feature. The title of the issues should be "Feature 5 - Simulate line issues". This task needs to be performed in a branch called `Feature5`. Your team needs to create a GitHub pull request to merge the changes into main. When your team is happy with the solution to this task, one of the team members needs to merge the `Feature5` branch into the `main` branch.
 
 #### Task 12: Create unit tests for all the model classes
-AI Usage Level 1 - AI assistance for full line code completion (if AI is writing more than a line of code at a time, you should not be using it)
 
 In this project iteration, your team needs to create unit tests for all the model classes. We are interested in seeing at least one test case per method and your team does not need to create test cases for getter and setter methods. The team has to document what each test is supposed to do by adding a Javadoc comment to the test. A sample set of test cases is provided in the `<dir>/app/src/test/java/edu/umn/cs/csci3081w/project/model` folder. In this task, your team can also reuse (and we encourage you to do so) the test cases that the team built during project iteration 1. We encourage your team to write the test cases before making any change to the codebase. These tests should all pass. After creating the test cases, you can perform the refactoring task and use the tests to ensure that your team did not introduce errors in the code. (Some test cases might also need refactoring.) When you add the new features, you should also add new test cases for the features (when applicable). All the test cases you create should pass. Your team can create test cases in any branch but the final set of test cases should be in the `main` branch. You can run tests with the command `./gradlew clean test`.
 
