@@ -8,6 +8,8 @@
 #### Distribution of Work
 **Step 1: Please, provide here a brief description (one short paragraph) of the distribution of work across your team. You can refine this description as you carry out the project iteration.**
 
+Suhaib (about 35%) took tasks 5 (Refactor 1), 7 (Feature 1), 8 (Feature 2), and 1 (model UML), plus tests for the new bus and train classes and the bus strategy. Hamza (about 35%) took tasks 12 (tests for existing model classes), 6 (Refactor 2), 11 (Feature 5), 2 (webserver UML), and 4 (checkstyle), plus tests for Feature 5. Falmata (about 25%) took tasks 10 (Feature 4) and 9 (Feature 3), plus tests for the train strategy and the observer.
+
 ### Project Responsibilities of the Individual
 * Individually, contribute to the success of the team according to the policies and schedule agreed upon by all team members. Individually, create the opportunity for everyone in your group to succeed at being a good team member - don't do all the work yourself.
 
