@@ -33,6 +33,7 @@ public class VisualTransitSimulator {
   private StorageFacility storageFacility;
   private BusFactory busFactory;
   private TrainFactory trainFactory;
+  
   /**
    * Constructor for Simulation.
    *
