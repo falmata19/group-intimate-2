@@ -9,6 +9,7 @@ public class Line {
   private String type;
   private Route outboundRoute;
   private Route inboundRoute;
+  private LineIssue issue;
 
   /**
    * Line constructor that takes the line id, name, and type.
@@ -20,11 +21,17 @@ public class Line {
    * @param inboundRoute  inbound route of the line
    */
   public Line(int id, String name, String type, Route outboundRoute, Route inboundRoute) {
+    this(id, name, type, outboundRoute, inboundRoute, new LineIssue());
+  }
+
+  private Line(int id, String name, String type, Route outboundRoute, Route inboundRoute,
+               LineIssue issue) {
     this.id = id;
     this.name = name;
     this.type = type;
     this.outboundRoute = outboundRoute;
     this.inboundRoute = inboundRoute;
+    this.issue = issue;
   }
 
   /**
@@ -43,12 +50,37 @@ public class Line {
 
   /**
    * Makes a copy of this line with the same id, name, and type, and shallow copies of
-   * both routes. The copied routes share the same stops as the original routes.
+   * both routes. The copied routes share the same stops as the original routes, and the copy
+   * shares the issue state of this line, so an issue on the line affects its copies.
    *
    * @return a shallow copy of this line
    */
   public Line shallowCopy() {
-    return new Line(id, name, type, outboundRoute.shallowCopy(), inboundRoute.shallowCopy());
+    return new Line(id, name, type, outboundRoute.shallowCopy(), inboundRoute.shallowCopy(),
+        issue);
+  }
+
+  /**
+   * Starts an issue on the line. The vehicles of the line should not move while it is active.
+   */
+  public void startIssue() {
+    issue.start();
+  }
+
+  /**
+   * Moves the issue of the line forward by one time unit.
+   */
+  public void updateIssue() {
+    issue.update();
+  }
+
+  /**
+   * Checks if the line has an active issue.
+   *
+   * @return true if there is an active issue on the line
+   */
+  public boolean isIssueActive() {
+    return issue.isActive();
   }
 
   public int getId() {

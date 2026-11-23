@@ -83,6 +83,10 @@ public class VisualTransitSimulator {
     }
     System.out.println("~~~~The simulation time is now at time step "
         + simulationTimeElapsed + "~~~~");
+    // update the line issues
+    for (int i = 0; i < lines.size(); i++) {
+      lines.get(i).updateIssue();
+    }
     // generate vehicles
     for (int i = 0; i < timeSinceLastVehicle.size(); i++) {
       if (timeSinceLastVehicle.get(i) <= 0) {
@@ -159,6 +163,22 @@ public class VisualTransitSimulator {
 
   public List<Line> getLines() {
     return lines;
+  }
+
+  /**
+   * Starts an issue on a line, so its vehicles do not move for a while.
+   *
+   * @param lineId id of the line
+   * @return true if a line with that id exists
+   */
+  public boolean startLineIssue(int lineId) {
+    for (Line line : lines) {
+      if (line.getId() == lineId) {
+        line.startIssue();
+        return true;
+      }
+    }
+    return false;
   }
 
   public List<Vehicle> getActiveVehicles() {
