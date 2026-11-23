@@ -1,0 +1,233 @@
+classDiagram
+    class Vehicle {
+        <<abstract>>
+        -int id
+        -int capacity
+        -double speed
+        -String name
+        -Position position
+        -Line line
+        -double distanceRemaining
+        -Stop nextStop
+        -List~Passenger~ passengers
+        -PassengerLoader loader
+        -PassengerUnloader unloader
+        +report(PrintStream out)* void
+        +getCo2Emission()* int
+        +isTripComplete() boolean
+        +loadPassenger(Passenger) int
+        +move() void
+        +update() void
+        +getId() int
+        +getName() String
+        +getPosition() Position
+        +getPassengers() List~Passenger~
+        +getCapacity() int
+        +getSpeed() double
+        +getLine() Line
+        +getNextStop() Stop
+        +getDistanceRemaining() double
+    }
+    class Bus {
+        +String BUS_VEHICLE
+        +double SPEED
+        +int CAPACITY
+        +report(PrintStream out) void
+        +getCo2Emission() int
+    }
+    class SmallBus {
+        +String SMALL_BUS_VEHICLE
+        +int CAPACITY
+        +getCo2Emission() int
+    }
+    class LargeBus {
+        +String LARGE_BUS_VEHICLE
+        +int CAPACITY
+        +getCo2Emission() int
+    }
+    class Train {
+        +String TRAIN_VEHICLE
+        +double SPEED
+        +int CAPACITY
+        +report(PrintStream out) void
+        +getCo2Emission() int
+    }
+    class ElectricTrain {
+        +String ELECTRIC_TRAIN_VEHICLE
+        +getCo2Emission() int
+    }
+    class DieselTrain {
+        +String DIESEL_TRAIN_VEHICLE
+        +getCo2Emission() int
+    }
+    class BusStrategy {
+        <<interface>>
+        +getNextBusType() String
+    }
+    class BusStrategyDay {
+        -int position
+        +getNextBusType() String
+    }
+    class BusStrategyNight {
+        -int position
+        +getNextBusType() String
+    }
+    class BusFactory {
+        -BusStrategy strategy
+        +BusFactory(LocalDateTime currentTime)
+        +getNextBusType() String
+        +generate(String busType, int id, Line line) Bus
+    }
+    class StorageFacility {
+        -int smallBusesNum
+        -int largeBusesNum
+        -int electricTrainsNum
+        -int dieselTrainsNum
+        +decrementSmallBus() void
+        +incrementSmallBus() void
+        +decrementLargeBus() void
+        +incrementLargeBus() void
+        +decrementElectricTrain() void
+        +incrementElectricTrain() void
+        +decrementDieselTrain() void
+        +incrementDieselTrain() void
+        +getSmallBusesNum() int
+        +getLargeBusesNum() int
+        +getElectricTrainsNum() int
+        +getDieselTrainsNum() int
+    }
+    class Line {
+        -int id
+        -String name
+        -String type
+        -Route outboundRoute
+        -Route inboundRoute
+        -LineIssue issue
+        +shallowCopy() Line
+        +startIssue() void
+        +updateIssue() void
+        +isIssueActive() boolean
+        +getOutboundRoute() Route
+        +getInboundRoute() Route
+    }
+    class LineIssue {
+        +int DURATION
+        -int timeRemaining
+        +createIssue() void
+        +tick() void
+        +isIssueExist() boolean
+        +getTimeRemaining() int
+    }
+    class Route {
+        +String BUS_LINE
+        +String TRAIN_LINE
+        -int id
+        -String lineName
+        -String lineType
+        -String name
+        -List~Stop~ stops
+        -List~Double~ distances
+        -int nextStopIndex
+        -Stop nextStop
+        -PassengerGenerator generator
+        +shallowCopy() Route
+        +update() void
+        +report(PrintStream out) void
+        +isAtEnd() boolean
+        +prevStop() Stop
+        +nextStop() void
+        +getNextStop() Stop
+        +getNextStopDistance() Double
+        +generateNewPassengers() int
+    }
+    class Stop {
+        -int id
+        -String name
+        -Position position
+        -List~Passenger~ passengers
+        +loadPassengers(Vehicle) int
+        +addPassengers(Passenger) int
+        +update() void
+        +report(PrintStream out) void
+        +getId() int
+        +getPosition() Position
+        +getPassengers() List~Passenger~
+    }
+    class Position {
+        -double longitude
+        -double latitude
+        +getLongitude() double
+        +getLatitude() double
+    }
+    class Passenger {
+        -String name
+        -int destinationStopId
+        -int waitAtStop
+        -int timeOnVehicle
+        +pasUpdate() void
+        +setOnVehicle() void
+        +isOnVehicle() boolean
+        +getDestination() int
+        +report(PrintStream out) void
+    }
+    class PassengerFactory {
+        +boolean DETERMINISTIC
+        +generate(int currStop, int lastStop)$ Passenger
+        +nameGeneration()$ String
+    }
+    class PassengerGenerator {
+        <<abstract>>
+        -List~Stop~ stops
+        -List~Double~ probabilities
+        +generatePassengers()* int
+        +getStops() List~Stop~
+        +getProbabilities() List~Double~
+    }
+    class RandomPassengerGenerator {
+        +boolean DETERMINISTIC
+        +generatePassengers() int
+    }
+    class PassengerLoader {
+        +loadPassenger(Passenger, int maxPass, List~Passenger~) int
+    }
+    class PassengerUnloader {
+        +unloadPassengers(List~Passenger~, Stop) int
+    }
+    class Counter {
+        +getLineIdCounterAndIncrement() int
+        +getRouteIdCounterAndIncrement() int
+        +getStopIdCounterAndIncrement() int
+        +getBusIdCounterAndIncrement() int
+        +getTrainIdCounterAndIncrement() int
+    }
+
+    Vehicle <|-- Bus
+    Vehicle <|-- Train
+    Bus <|-- SmallBus
+    Bus <|-- LargeBus
+    Train <|-- ElectricTrain
+    Train <|-- DieselTrain
+
+    BusStrategy <|.. BusStrategyDay
+    BusStrategy <|.. BusStrategyNight
+    BusFactory o-- BusStrategy
+    BusFactory ..> SmallBus : creates
+    BusFactory ..> LargeBus : creates
+
+    Vehicle "1" o-- "1" Line
+    Vehicle o-- PassengerLoader
+    Vehicle o-- PassengerUnloader
+    Vehicle "1" o-- "*" Passenger
+    Vehicle --> Stop : nextStop
+    Vehicle --> Position
+
+    Line "1" o-- "2" Route : outbound and inbound
+    Line "1" o-- "1" LineIssue
+    Route "1" o-- "*" Stop
+    Route o-- PassengerGenerator
+    PassengerGenerator <|-- RandomPassengerGenerator
+    PassengerGenerator o-- Stop
+    RandomPassengerGenerator ..> PassengerFactory
+    PassengerFactory ..> Passenger : creates
+    Stop "1" o-- "*" Passenger
+    Stop --> Position
