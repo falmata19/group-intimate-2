@@ -1,9 +1,11 @@
 package edu.umn.cs.csci3081w.project.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,6 +112,47 @@ public class LineTest {
     assertEquals(inbound.getId(), copy.getInboundRoute().getId());
     assertSame(outbound.getStops().get(0), copy.getOutboundRoute().getStops().get(0));
     assertSame(inbound.getStops().get(1), copy.getInboundRoute().getStops().get(1));
+  }
+
+  /**
+   * Tests that a new line has no issue.
+   */
+  @Test
+  public void testIssueInitiallyNotActive() {
+    Line line = new Line(createRoute(10, "out"), createRoute(11, "in"));
+    assertFalse(line.isIssueActive());
+  }
+
+  /**
+   * Tests that startIssue makes the issue exist and that it ends after 10 updates.
+   */
+  @Test
+  public void testStartIssueAndUpdateIssue() {
+    Line line = new Line(createRoute(10, "out"), createRoute(11, "in"));
+    line.startIssue();
+    assertTrue(line.isIssueActive());
+    for (int i = 0; i < 10; i++) {
+      line.updateIssue();
+    }
+    assertFalse(line.isIssueActive());
+  }
+
+  /**
+   * Tests that an issue started on a line is visible on its shallow copy, and that an issue
+   * started on the copy is visible on the line.
+   */
+  @Test
+  public void testShallowCopySharesIssue() {
+    Line line = new Line(createRoute(10, "out"), createRoute(11, "in"));
+    Line copy = line.shallowCopy();
+    line.startIssue();
+    assertTrue(copy.isIssueActive());
+    for (int i = 0; i < 10; i++) {
+      copy.updateIssue();
+    }
+    assertFalse(line.isIssueActive());
+    copy.startIssue();
+    assertTrue(line.isIssueActive());
   }
 
 }
