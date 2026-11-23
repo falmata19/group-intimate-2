@@ -54,6 +54,23 @@ package "webserver" {
     + execute(session : WebServerSession, command : JsonObject) : void
   }
 
+  class RegisterVehicleCommand {
+    - simulator : VisualTransitSimulator
+    - observedVehicle : Vehicle
+    - observer : VehicleInfoObserver
+    + RegisterVehicleCommand(simulator : VisualTransitSimulator)
+    + execute(session : WebServerSession, command : JsonObject) : void
+  }
+
+  class VehicleInfoObserver {
+    - session : WebServerSession
+    - vehicle : Vehicle
+    + VehicleInfoObserver(session : WebServerSession, vehicle : Vehicle)
+    + onCO2Update(id : int, values : int[]) : void
+    + sendCurrentInfo() : void
+    + {static} buildText(vehicle : Vehicle, values : int[]) : String
+  }
+
   class StartCommand {
     - simulator : VisualTransitSimulator
     + StartCommand(simulator : VisualTransitSimulator)
@@ -122,6 +139,7 @@ package "model (names only)" {
   class BusFactory
   class BusStrategy
   class Vehicle
+  interface CO2Observer
   class Bus
   class Train
   class SmallBus
@@ -143,6 +161,7 @@ SimulatorCommand <|-- GetRoutesCommand
 SimulatorCommand <|-- GetVehiclesCommand
 SimulatorCommand <|-- InitLinesCommand
 SimulatorCommand <|-- LineIssueCommand
+SimulatorCommand <|-- RegisterVehicleCommand
 SimulatorCommand <|-- StartCommand
 SimulatorCommand <|-- PauseCommand
 SimulatorCommand <|-- UpdateCommand
@@ -152,9 +171,18 @@ GetRoutesCommand --> VisualTransitSimulator
 GetVehiclesCommand --> VisualTransitSimulator
 InitLinesCommand --> VisualTransitSimulator
 LineIssueCommand --> VisualTransitSimulator
+RegisterVehicleCommand --> VisualTransitSimulator
 StartCommand --> VisualTransitSimulator
 UpdateCommand --> VisualTransitSimulator
 UpdateCommand --> PauseCommand
+
+' observer pattern
+CO2Observer <|.. VehicleInfoObserver
+RegisterVehicleCommand --> VehicleInfoObserver : creates
+RegisterVehicleCommand ..> Vehicle
+VehicleInfoObserver --> WebServerSession
+VehicleInfoObserver --> Vehicle
+Vehicle o--> CO2Observer : observers
 
 ' commands use the model
 GetRoutesCommand ..> Line
