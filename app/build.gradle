@@ -45,7 +45,7 @@ checkstyle {
 }
 
 javadoc {
-    title = "Visual Transit Simulator: Project Iteration 1"
+    title = "Visual Transit Simulator: Project Iteration 2"
     options.overview = "doc/overview.html"
     doLast {
         copy {
