@@ -1,0 +1,188 @@
+@startuml
+!pragma layout smetana
+title Webserver classes of the Visual Transit Simulator
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 60
+
+package "webserver" {
+
+  class WebServerSession <<ServerEndpoint>> {
+    - session : Session
+    - webServerState : WebServerSessionState
+    + WebServerSession()
+    + onOpen(session : Session) : void
+    + onMessage(message : String) : void
+    + sendJson(message : JsonObject) : void
+    + onError(e : Throwable) : void
+    + onClose(session : Session) : void
+  }
+
+  class WebServerSessionState {
+    - commands : Map<String, SimulatorCommand>
+    + WebServerSessionState()
+    + getCommands() : Map<String, SimulatorCommand>
+  }
+
+  abstract class SimulatorCommand {
+    + {abstract} execute(session : WebServerSession, command : JsonObject) : void
+  }
+
+  class GetRoutesCommand {
+    - simulator : VisualTransitSimulator
+    + GetRoutesCommand(simulator : VisualTransitSimulator)
+    + execute(session : WebServerSession, command : JsonObject) : void
+  }
+
+  class GetVehiclesCommand {
+    - simulator : VisualTransitSimulator
+    + GetVehiclesCommand(simulator : VisualTransitSimulator)
+    + execute(session : WebServerSession, command : JsonObject) : void
+  }
+
+  class InitLinesCommand {
+    - simulator : VisualTransitSimulator
+    + InitLinesCommand(simulator : VisualTransitSimulator)
+    + execute(session : WebServerSession, command : JsonObject) : void
+  }
+
+  class LineIssueCommand {
+    - simulator : VisualTransitSimulator
+    + LineIssueCommand(simulator : VisualTransitSimulator)
+    + execute(session : WebServerSession, command : JsonObject) : void
+  }
+
+  class StartCommand {
+    - simulator : VisualTransitSimulator
+    + StartCommand(simulator : VisualTransitSimulator)
+    + execute(session : WebServerSession, command : JsonObject) : void
+  }
+
+  class PauseCommand {
+    - paused : boolean
+    + execute(session : WebServerSession, command : JsonObject) : void
+    + isPaused() : boolean
+  }
+
+  class UpdateCommand {
+    - simulator : VisualTransitSimulator
+    - pauseCommand : PauseCommand
+    + UpdateCommand(simulator : VisualTransitSimulator, pauseCommand : PauseCommand)
+    + execute(session : WebServerSession, command : JsonObject) : void
+  }
+
+  class VisualTransitSimulator {
+    - {static} LOGGING : boolean
+    - numTimeSteps : int
+    - simulationTimeElapsed : int
+    - counter : Counter
+    - lines : List<Line>
+    - activeVehicles : List<Vehicle>
+    - completedTripVehicles : List<Vehicle>
+    - vehicleStartTimings : List<Integer>
+    - timeSinceLastVehicle : List<Integer>
+    - storageFacility : StorageFacility
+    - busFactory : BusFactory
+    + VisualTransitSimulator(configFile : String)
+    + start(vehicleStartTimings : List<Integer>, numTimeSteps : int) : void
+    + update() : void
+    + getLines() : List<Line>
+    + startLineIssue(lineId : int) : boolean
+    + getActiveVehicles() : List<Vehicle>
+  }
+
+  class ConfigManager {
+    - {static} LINE_START : String
+    - {static} LINE_END : String
+    - {static} ROUTE_START : String
+    - {static} ROUTE_END : String
+    - {static} BUS_LINE : String
+    - {static} TRAIN_LINE : String
+    - routes : List<Route>
+    - lines : List<Line>
+    - storageFacility : StorageFacility
+    + ConfigManager()
+    + readConfig(counter : Counter, fileName : String) : void
+    + getRoutes() : List<Route>
+    + getLines() : List<Line>
+    + getStorageFacility() : StorageFacility
+  }
+}
+
+package "model (names only)" {
+  class Line
+  class Route
+  class Stop
+  class Position
+  class RandomPassengerGenerator
+  class StorageFacility
+  class Counter
+  class BusFactory
+  class BusStrategy
+  class Vehicle
+  class Bus
+  class Train
+  class SmallBus
+  class LargeBus
+  class ElectricTrain
+  class DieselTrain
+}
+
+class Session <<javax.websocket>>
+
+' session and command registry
+WebServerSession --> WebServerSessionState
+WebServerSession ..> Session
+WebServerSession ..> VisualTransitSimulator : creates in onOpen
+WebServerSessionState --> SimulatorCommand
+
+' every command is a SimulatorCommand
+SimulatorCommand <|-- GetRoutesCommand
+SimulatorCommand <|-- GetVehiclesCommand
+SimulatorCommand <|-- InitLinesCommand
+SimulatorCommand <|-- LineIssueCommand
+SimulatorCommand <|-- StartCommand
+SimulatorCommand <|-- PauseCommand
+SimulatorCommand <|-- UpdateCommand
+
+' commands and the simulator
+GetRoutesCommand --> VisualTransitSimulator
+GetVehiclesCommand --> VisualTransitSimulator
+InitLinesCommand --> VisualTransitSimulator
+LineIssueCommand --> VisualTransitSimulator
+StartCommand --> VisualTransitSimulator
+UpdateCommand --> VisualTransitSimulator
+UpdateCommand --> PauseCommand
+
+' commands use the model
+GetRoutesCommand ..> Line
+GetRoutesCommand ..> Route
+InitLinesCommand ..> Line
+GetVehiclesCommand ..> Vehicle
+GetVehiclesCommand ..> Bus
+GetVehiclesCommand ..> Train
+
+' the simulator
+VisualTransitSimulator --> Line
+VisualTransitSimulator --> Vehicle
+VisualTransitSimulator --> StorageFacility
+VisualTransitSimulator --> Counter
+VisualTransitSimulator --> BusFactory
+VisualTransitSimulator ..> ConfigManager : reads config with
+VisualTransitSimulator ..> SmallBus
+VisualTransitSimulator ..> LargeBus
+VisualTransitSimulator ..> ElectricTrain
+VisualTransitSimulator ..> DieselTrain
+BusFactory --> BusStrategy
+
+' the config manager
+ConfigManager --> Line
+ConfigManager --> Route
+ConfigManager --> StorageFacility
+ConfigManager ..> Counter
+ConfigManager ..> Stop
+ConfigManager ..> Position
+ConfigManager ..> RandomPassengerGenerator
+@enduml
