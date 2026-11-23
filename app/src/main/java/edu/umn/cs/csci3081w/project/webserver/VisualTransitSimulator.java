@@ -1,6 +1,6 @@
 package edu.umn.cs.csci3081w.project.webserver;
 
-import edu.umn.cs.csci3081w.project.model.Bus;
+import edu.umn.cs.csci3081w.project.model.BusFactory;
 import edu.umn.cs.csci3081w.project.model.Counter;
 import edu.umn.cs.csci3081w.project.model.DieselTrain;
 import edu.umn.cs.csci3081w.project.model.ElectricTrain;
@@ -11,6 +11,7 @@ import edu.umn.cs.csci3081w.project.model.SmallBus;
 import edu.umn.cs.csci3081w.project.model.StorageFacility;
 import edu.umn.cs.csci3081w.project.model.Train;
 import edu.umn.cs.csci3081w.project.model.Vehicle;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class VisualTransitSimulator {
   private List<Integer> vehicleStartTimings;
   private List<Integer> timeSinceLastVehicle;
   private StorageFacility storageFacility;
+  private BusFactory busFactory;
 
   /**
    * Constructor for Simulation.
@@ -42,6 +44,7 @@ public class VisualTransitSimulator {
     configManager.readConfig(counter, configFile);
     this.routes = configManager.getRoutes();
     this.storageFacility = configManager.getStorageFacility();
+    this.busFactory = new BusFactory(LocalDateTime.now());
     this.activeVehicles = new ArrayList<Vehicle>();
     this.completedTripVehicles = new ArrayList<Vehicle>();
     this.vehicleStartTimings = new ArrayList<Integer>();
@@ -86,15 +89,18 @@ public class VisualTransitSimulator {
         Route inbound = routes.get(2 * i + 1);
         if (outbound.getLineType().equals(Route.BUS_LINE)
             && inbound.getLineType().equals(Route.BUS_LINE)) {
-          if (storageFacility.getSmallBusesNum() > 0) {
-            activeVehicles.add(new SmallBus(counter.getBusIdCounterAndIncrement(),
-                    new Line(outbound.shallowCopy(), inbound.shallowCopy()),
-                    SmallBus.CAPACITY, Bus.SPEED));
+          String busType = busFactory.getNextBusType();
+          if (busType.equals(SmallBus.SMALL_BUS_VEHICLE)
+              && storageFacility.getSmallBusesNum() > 0) {
+            activeVehicles.add(busFactory.generate(busType,
+                    counter.getBusIdCounterAndIncrement(),
+                    new Line(outbound.shallowCopy(), inbound.shallowCopy())));
             storageFacility.decrementSmallBus();
-          } else if (storageFacility.getLargeBusesNum() > 0) {
-            activeVehicles.add(new LargeBus(counter.getBusIdCounterAndIncrement(),
-                    new Line(outbound.shallowCopy(), inbound.shallowCopy()),
-                    LargeBus.CAPACITY, Bus.SPEED));
+          } else if (busType.equals(LargeBus.LARGE_BUS_VEHICLE)
+              && storageFacility.getLargeBusesNum() > 0) {
+            activeVehicles.add(busFactory.generate(busType,
+                    counter.getBusIdCounterAndIncrement(),
+                    new Line(outbound.shallowCopy(), inbound.shallowCopy())));
             storageFacility.decrementLargeBus();
           }
           timeSinceLastVehicle.set(i, vehicleStartTimings.get(i));
