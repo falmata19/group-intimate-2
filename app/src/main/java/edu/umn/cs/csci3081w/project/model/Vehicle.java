@@ -274,6 +274,7 @@ public abstract class Vehicle {
   public double getDistanceRemaining() {
     return distanceRemaining;
   }
+
   /**
    * Returns the CO2 the vehicle is producing right now.
    *

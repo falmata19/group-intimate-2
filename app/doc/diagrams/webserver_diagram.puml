@@ -102,6 +102,7 @@ package "webserver" {
     - timeSinceLastVehicle : List<Integer>
     - storageFacility : StorageFacility
     - busFactory : BusFactory
+    - trainFactory : TrainFactory
     + VisualTransitSimulator(configFile : String)
     + start(vehicleStartTimings : List<Integer>, numTimeSteps : int) : void
     + update() : void
@@ -138,6 +139,8 @@ package "model (names only)" {
   class Counter
   class BusFactory
   class BusStrategy
+  class TrainFactory
+  class TrainStrategy
   class Vehicle
   interface CO2Observer
   class Bus
@@ -182,6 +185,7 @@ RegisterVehicleCommand --> VehicleInfoObserver : creates
 RegisterVehicleCommand ..> Vehicle
 VehicleInfoObserver --> WebServerSession
 VehicleInfoObserver --> Vehicle
+VehicleInfoObserver ..> Bus
 Vehicle o--> CO2Observer : observers
 
 ' commands use the model
@@ -198,12 +202,14 @@ VisualTransitSimulator --> Vehicle
 VisualTransitSimulator --> StorageFacility
 VisualTransitSimulator --> Counter
 VisualTransitSimulator --> BusFactory
+VisualTransitSimulator --> TrainFactory
 VisualTransitSimulator ..> ConfigManager : reads config with
 VisualTransitSimulator ..> SmallBus
 VisualTransitSimulator ..> LargeBus
 VisualTransitSimulator ..> ElectricTrain
 VisualTransitSimulator ..> DieselTrain
 BusFactory --> BusStrategy
+TrainFactory --> TrainStrategy
 
 ' the config manager
 ConfigManager --> Line
