@@ -8,6 +8,7 @@ import java.util.List;
  * A vehicle that carries passengers along routes.
  */
 public abstract class Vehicle {
+  public static final int CO2_HISTORY_SIZE = 5;
   private int id;
   private int capacity;
   //the speed is in distance over a time unit
@@ -20,6 +21,10 @@ public abstract class Vehicle {
   private Line line;
   private double distanceRemaining;
   private Stop nextStop;
+  // CO2 of the latest five time units, oldest first and current time unit last
+  private int[] co2History = new int[CO2_HISTORY_SIZE];
+  private List<CO2Observer> observers = new ArrayList<CO2Observer>();
+
 
 
   /**
@@ -121,11 +126,63 @@ public abstract class Vehicle {
   }
 
   /**
-   * Updates the vehicle for one time step.
+   * Updates the vehicle for one time step and records its CO2 for the time step.
    */
   public void update() {
     move();
+    updateCo2History();
   }
+
+  /**
+   * Adds an observer that is told about the CO2 history after every update of the vehicle.
+   *
+   * @param observer the observer to add
+   */
+  public void addCO2Observer(CO2Observer observer) {
+    if (observer != null && !observers.contains(observer)) {
+      observers.add(observer);
+    }
+  }
+
+  /**
+   * Stops telling an observer about the CO2 history of the vehicle.
+   *
+   * @param observer the observer to remove
+   */
+  public void removeCO2Observer(CO2Observer observer) {
+    observers.remove(observer);
+  }
+
+  /**
+   * Tells every observer about the latest CO2 history.
+   */
+  protected void notifyCO2Observers() {
+    for (CO2Observer observer : new ArrayList<CO2Observer>(observers)) {
+      observer.onCO2Update(getId(), co2History.clone());
+    }
+  }
+
+  /**
+   * Moves the CO2 history one time unit forward, saves the current CO2 and tells the observers.
+   */
+  protected void updateCo2History() {
+    for (int i = 0; i < CO2_HISTORY_SIZE - 1; i++) {
+      co2History[i] = co2History[i + 1];
+    }
+    co2History[CO2_HISTORY_SIZE - 1] = getCo2Emission();
+    notifyCO2Observers();
+  }
+
+  /**
+   * Returns the CO2 of the latest five time units.
+   *
+   * @return copy of the CO2 history, oldest first and current time unit last
+   */
+  public int[] getCo2History() {
+    return co2History.clone();
+  }
+
+
 
   private int unloadPassengers() {
     return getPassengerUnloader().unloadPassengers(getPassengers(), nextStop);
@@ -217,9 +274,10 @@ public abstract class Vehicle {
   public double getDistanceRemaining() {
     return distanceRemaining;
   }
-
   /**
    * Returns the CO2 the vehicle is producing right now.
+   *
+   * @return CO2 units for this time unit
    */
   public abstract int getCo2Emission();
 }
