@@ -25,7 +25,7 @@ public class VisualTransitSimulator {
   private int numTimeSteps = 0;
   private int simulationTimeElapsed = 0;
   private Counter counter;
-  private List<Route> routes;
+  private List<Line> lines;
   private List<Vehicle> activeVehicles;
   private List<Vehicle> completedTripVehicles;
   private List<Integer> vehicleStartTimings;
@@ -42,7 +42,7 @@ public class VisualTransitSimulator {
     this.counter = new Counter();
     ConfigManager configManager = new ConfigManager();
     configManager.readConfig(counter, configFile);
-    this.routes = configManager.getRoutes();
+    this.lines = configManager.getLines();
     this.storageFacility = configManager.getStorageFacility();
     this.busFactory = new BusFactory(LocalDateTime.now());
     this.activeVehicles = new ArrayList<Vehicle>();
@@ -51,8 +51,9 @@ public class VisualTransitSimulator {
     this.timeSinceLastVehicle = new ArrayList<Integer>();
     if (VisualTransitSimulator.LOGGING) {
       System.out.println("////Simulation Routes////");
-      for (int i = 0; i < routes.size(); i++) {
-        routes.get(i).report(System.out);
+      for (int i = 0; i < lines.size(); i++) {
+        lines.get(i).getOutboundRoute().report(System.out);
+        lines.get(i).getInboundRoute().report(System.out);
       }
     }
   }
@@ -85,36 +86,33 @@ public class VisualTransitSimulator {
     // generate vehicles
     for (int i = 0; i < timeSinceLastVehicle.size(); i++) {
       if (timeSinceLastVehicle.get(i) <= 0) {
-        Route outbound = routes.get(2 * i);
-        Route inbound = routes.get(2 * i + 1);
-        if (outbound.getLineType().equals(Route.BUS_LINE)
-            && inbound.getLineType().equals(Route.BUS_LINE)) {
+        Line line = lines.get(i);
+        if (line.getType().equals(Route.BUS_LINE)) {
           String busType = busFactory.getNextBusType();
           if (busType.equals(SmallBus.SMALL_BUS_VEHICLE)
               && storageFacility.getSmallBusesNum() > 0) {
             activeVehicles.add(busFactory.generate(busType,
                     counter.getBusIdCounterAndIncrement(),
-                    new Line(outbound.shallowCopy(), inbound.shallowCopy())));
+                    line.shallowCopy()));
             storageFacility.decrementSmallBus();
           } else if (busType.equals(LargeBus.LARGE_BUS_VEHICLE)
               && storageFacility.getLargeBusesNum() > 0) {
             activeVehicles.add(busFactory.generate(busType,
                     counter.getBusIdCounterAndIncrement(),
-                    new Line(outbound.shallowCopy(), inbound.shallowCopy())));
+                    line.shallowCopy()));
             storageFacility.decrementLargeBus();
           }
           timeSinceLastVehicle.set(i, vehicleStartTimings.get(i));
           timeSinceLastVehicle.set(i, timeSinceLastVehicle.get(i) - 1);
-        } else if (outbound.getLineType().equals(Route.TRAIN_LINE)
-            && inbound.getLineType().equals(Route.TRAIN_LINE)) {
+        } else if (line.getType().equals(Route.TRAIN_LINE)) {
           if (storageFacility.getElectricTrainsNum() > 0) {
             activeVehicles.add(new ElectricTrain(counter.getTrainIdCounterAndIncrement(),
-                    new Line(outbound.shallowCopy(), inbound.shallowCopy()),
+                    line.shallowCopy(),
                     Train.CAPACITY, Train.SPEED));
             storageFacility.decrementElectricTrain();
           } else if (storageFacility.getDieselTrainsNum() > 0) {
             activeVehicles.add(new DieselTrain(counter.getTrainIdCounterAndIncrement(),
-                    new Line(outbound.shallowCopy(), inbound.shallowCopy()),
+                    line.shallowCopy(),
                     Train.CAPACITY, Train.SPEED));
             storageFacility.decrementDieselTrain();
           }
@@ -148,17 +146,19 @@ public class VisualTransitSimulator {
       }
     }
     // update routes
-    for (int i = 0; i < routes.size(); i++) {
-      Route currRoute = routes.get(i);
-      currRoute.update();
-      if (VisualTransitSimulator.LOGGING) {
-        currRoute.report(System.out);
+    for (int i = 0; i < lines.size(); i++) {
+      Route[] lineRoutes = {lines.get(i).getOutboundRoute(), lines.get(i).getInboundRoute()};
+      for (Route currRoute : lineRoutes) {
+        currRoute.update();
+        if (VisualTransitSimulator.LOGGING) {
+          currRoute.report(System.out);
+        }
       }
     }
   }
 
-  public List<Route> getRoutes() {
-    return routes;
+  public List<Line> getLines() {
+    return lines;
   }
 
   public List<Vehicle> getActiveVehicles() {
