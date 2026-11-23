@@ -12,6 +12,9 @@ classDiagram
         -List~Passenger~ passengers
         -PassengerLoader loader
         -PassengerUnloader unloader
+        +int CO2_HISTORY_SIZE
+        -int[] co2History
+        -List~CO2Observer~ observers
         +report(PrintStream out)* void
         +getCo2Emission()* int
         +isTripComplete() boolean
@@ -27,6 +30,15 @@ classDiagram
         +getLine() Line
         +getNextStop() Stop
         +getDistanceRemaining() double
+        +addCO2Observer(CO2Observer) void
+        +removeCO2Observer(CO2Observer) void
+        #notifyCO2Observers() void
+        #updateCo2History() void
+        +getCo2History() int[]
+    }
+    class CO2Observer {
+        <<interface>>
+        +onCO2Update(int id, int[] values) void
     }
     class Bus {
         +String BUS_VEHICLE
@@ -238,6 +250,7 @@ classDiagram
     TrainFactory ..> ElectricTrain : creates
     TrainFactory ..> DieselTrain : creates
 
+    Vehicle "1" o-- "*" CO2Observer
     Vehicle "1" o-- "1" Line
     Vehicle o-- PassengerLoader
     Vehicle o-- PassengerUnloader
