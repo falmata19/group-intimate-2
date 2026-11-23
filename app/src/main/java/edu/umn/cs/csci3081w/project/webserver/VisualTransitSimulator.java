@@ -9,7 +9,7 @@ import edu.umn.cs.csci3081w.project.model.Line;
 import edu.umn.cs.csci3081w.project.model.Route;
 import edu.umn.cs.csci3081w.project.model.SmallBus;
 import edu.umn.cs.csci3081w.project.model.StorageFacility;
-import edu.umn.cs.csci3081w.project.model.Train;
+import edu.umn.cs.csci3081w.project.model.TrainFactory;
 import edu.umn.cs.csci3081w.project.model.Vehicle;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class VisualTransitSimulator {
   private List<Integer> timeSinceLastVehicle;
   private StorageFacility storageFacility;
   private BusFactory busFactory;
-
+  private TrainFactory trainFactory;
   /**
    * Constructor for Simulation.
    *
@@ -45,6 +45,7 @@ public class VisualTransitSimulator {
     this.lines = configManager.getLines();
     this.storageFacility = configManager.getStorageFacility();
     this.busFactory = new BusFactory(LocalDateTime.now());
+    this.trainFactory = new TrainFactory(LocalDateTime.now());
     this.activeVehicles = new ArrayList<Vehicle>();
     this.completedTripVehicles = new ArrayList<Vehicle>();
     this.vehicleStartTimings = new ArrayList<Integer>();
@@ -107,17 +108,19 @@ public class VisualTransitSimulator {
             storageFacility.decrementLargeBus();
           }
           timeSinceLastVehicle.set(i, vehicleStartTimings.get(i));
-          timeSinceLastVehicle.set(i, timeSinceLastVehicle.get(i) - 1);
         } else if (line.getType().equals(Route.TRAIN_LINE)) {
-          if (storageFacility.getElectricTrainsNum() > 0) {
-            activeVehicles.add(new ElectricTrain(counter.getTrainIdCounterAndIncrement(),
-                    line.shallowCopy(),
-                    Train.CAPACITY, Train.SPEED));
+          String trainType = trainFactory.getNextTrainType();
+          if (trainType.equals(ElectricTrain.ELECTRIC_TRAIN_VEHICLE)
+              && storageFacility.getElectricTrainsNum() > 0) {
+            activeVehicles.add(trainFactory.generate(trainType,
+                counter.getTrainIdCounterAndIncrement(),
+                line.shallowCopy()));
             storageFacility.decrementElectricTrain();
-          } else if (storageFacility.getDieselTrainsNum() > 0) {
-            activeVehicles.add(new DieselTrain(counter.getTrainIdCounterAndIncrement(),
-                    line.shallowCopy(),
-                    Train.CAPACITY, Train.SPEED));
+          } else if (trainType.equals(DieselTrain.DIESEL_TRAIN_VEHICLE)
+              && storageFacility.getDieselTrainsNum() > 0) {
+            activeVehicles.add(trainFactory.generate(trainType,
+                counter.getTrainIdCounterAndIncrement(),
+                line.shallowCopy()));
             storageFacility.decrementDieselTrain();
           }
           timeSinceLastVehicle.set(i, vehicleStartTimings.get(i));
