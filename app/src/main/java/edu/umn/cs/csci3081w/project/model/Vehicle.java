@@ -75,9 +75,12 @@ public abstract class Vehicle {
   }
 
   /**
-   * Moves the vehicle along its route.
+   * Moves the vehicle along its route. The vehicle does not move while its line has an issue.
    */
   public void move() {
+    if (line.isIssueActive()) {
+      return;
+    }
     for (Passenger passenger : getPassengers()) {
       passenger.pasUpdate();
     }

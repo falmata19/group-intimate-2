@@ -23,14 +23,14 @@ public class LineIssue {
   /**
    * Starts an issue, or restarts the countdown if an issue is already active.
    */
-  public void start() {
+  public void createIssue() {
     timeRemaining = DURATION;
   }
 
   /**
    * Moves the issue forward by one time unit. Does nothing if there is no active issue.
    */
-  public void update() {
+  public void tick() {
     if (timeRemaining > 0) {
       timeRemaining--;
     }
@@ -41,7 +41,7 @@ public class LineIssue {
    *
    * @return true if the issue is active
    */
-  public boolean isActive() {
+  public boolean isIssueExist() {
     return timeRemaining > 0;
   }
 

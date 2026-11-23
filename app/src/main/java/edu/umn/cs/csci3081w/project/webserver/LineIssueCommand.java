@@ -27,7 +27,7 @@ public class LineIssueCommand extends SimulatorCommand {
    */
   @Override
   public void execute(WebServerSession session, JsonObject command) {
-    if (command == null || !command.has("id") || command.get("id").isJsonNull()) {
+    if (command == null || !command.has("id") || !command.get("id").isJsonPrimitive()) {
       return;
     }
     try {

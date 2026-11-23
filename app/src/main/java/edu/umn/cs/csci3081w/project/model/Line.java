@@ -64,14 +64,14 @@ public class Line {
    * Starts an issue on the line. The vehicles of the line should not move while it is active.
    */
   public void startIssue() {
-    issue.start();
+    issue.createIssue();
   }
 
   /**
    * Moves the issue of the line forward by one time unit.
    */
   public void updateIssue() {
-    issue.update();
+    issue.tick();
   }
 
   /**
@@ -80,7 +80,7 @@ public class Line {
    * @return true if there is an active issue on the line
    */
   public boolean isIssueActive() {
-    return issue.isActive();
+    return issue.isIssueExist();
   }
 
   public int getId() {
