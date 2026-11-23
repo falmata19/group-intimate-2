@@ -78,6 +78,24 @@ classDiagram
         +getNextBusType() String
         +generate(String busType, int id, Line line) Bus
     }
+    class TrainStrategy {
+        <<interface>>
+        +getNextTrainType() String
+    }
+    class TrainStrategyDay {
+        -int position
+        +getNextTrainType() String
+    }
+    class TrainStrategyNight {
+        -int position
+        +getNextTrainType() String
+    }
+    class TrainFactory {
+        -TrainStrategy strategy
+        +TrainFactory(LocalDateTime currentTime)
+        +getNextTrainType() String
+        +generate(String trainType, int id, Line line) Train
+    }
     class StorageFacility {
         -int smallBusesNum
         -int largeBusesNum
@@ -213,6 +231,12 @@ classDiagram
     BusFactory o-- BusStrategy
     BusFactory ..> SmallBus : creates
     BusFactory ..> LargeBus : creates
+
+    TrainStrategy <|.. TrainStrategyDay
+    TrainStrategy <|.. TrainStrategyNight
+    TrainFactory o-- TrainStrategy
+    TrainFactory ..> ElectricTrain : creates
+    TrainFactory ..> DieselTrain : creates
 
     Vehicle "1" o-- "1" Line
     Vehicle o-- PassengerLoader
