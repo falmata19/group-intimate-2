@@ -102,12 +102,18 @@ public class ConfigManager {
               new Position(currStopLongitude, currStopLatitude)));
         } else if (chunk.equals("STORAGE_FACILITY_START")) {
           storageFacility = new StorageFacility();
-        } else if (chunk.equals("BUSES")) {
-          int buses = Integer.parseInt(splits[1].trim());
-          storageFacility.setBusesNum(buses);
-        } else if (chunk.equals("TRAINS")) {
-          int trains = Integer.parseInt(splits[1].trim());
-          storageFacility.setTrainsNum(trains);
+        } else if (chunk.equals("SMALL_BUSES")) {
+          int smallBuses = Integer.parseInt(splits[1].trim());
+          storageFacility.setSmallBusesNum(smallBuses);
+        } else if (chunk.equals("LARGE_BUSES")) {
+          int largeBuses = Integer.parseInt(splits[1].trim());
+          storageFacility.setLargeBusesNum(largeBuses);
+        } else if (chunk.equals("ELECTRIC_TRAINS")) {
+          int electricTrains = Integer.parseInt(splits[1].trim());
+          storageFacility.setElectricTrainsNum(electricTrains);
+        } else if (chunk.equals("DIESEL_TRAINS")) {
+          int dieselTrains = Integer.parseInt(splits[1].trim());
+          storageFacility.setDieselTrainsNum(dieselTrains);
         }
       }
       scanner.close();

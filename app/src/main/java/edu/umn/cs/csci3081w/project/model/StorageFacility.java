@@ -1,95 +1,166 @@
 package edu.umn.cs.csci3081w.project.model;
 
 /**
- * Showing a facility that contains the number of trains and buses.
+ * Showing a facility that contains the number of small buses, large buses, electric trains, and
+ * diesel trains.
  */
 public class StorageFacility {
-  private int busesNum;
-  private int trainsNum;
+  private int smallBusesNum;
+  private int largeBusesNum;
+  private int electricTrainsNum;
+  private int dieselTrainsNum;
 
   /**
-   * Makes a storage facility with 0 buses and 0 trains.
+   * Makes a storage facility with no vehicles.
    */
   public StorageFacility() {
-    busesNum = 0;
-    trainsNum = 0;
+    smallBusesNum = 0;
+    largeBusesNum = 0;
+    electricTrainsNum = 0;
+    dieselTrainsNum = 0;
   }
 
   /**
    * Storage facility constructor.
    *
-   * @param busesNum  number of buses in storage
-   * @param trainsNum number of trains in storage
+   * @param smallBusesNum     number of small buses in storage
+   * @param largeBusesNum     number of large buses in storage
+   * @param electricTrainsNum number of electric trains in storage
+   * @param dieselTrainsNum   number of diesel trains in storage
    */
-  public StorageFacility(int busesNum, int trainsNum) {
-    this.busesNum = busesNum;
-    this.trainsNum = trainsNum;
+  public StorageFacility(int smallBusesNum, int largeBusesNum, int electricTrainsNum,
+                         int dieselTrainsNum) {
+    this.smallBusesNum = smallBusesNum;
+    this.largeBusesNum = largeBusesNum;
+    this.electricTrainsNum = electricTrainsNum;
+    this.dieselTrainsNum = dieselTrainsNum;
   }
 
   /**
-   * Removes one bus from storage.
+   * Removes one small bus from storage.
    */
-  public void decrementBus() {
-    busesNum--;
+  public void decrementSmallBus() {
+    smallBusesNum--;
   }
 
   /**
-   * Adds one bus back to storage.
+   * Adds one small bus back to storage.
    */
-  public void incrementBus() {
-    busesNum++;
+  public void incrementSmallBus() {
+    smallBusesNum++;
   }
 
   /**
-   * Removes one train from storage.
+   * Removes one large bus from storage.
    */
-  public void decrementTrain() {
-    trainsNum--;
+  public void decrementLargeBus() {
+    largeBusesNum--;
   }
 
   /**
-   * Adds one train back to storage.
+   * Adds one large bus back to storage.
    */
-  public void incrementTrain() {
-    trainsNum++;
+  public void incrementLargeBus() {
+    largeBusesNum++;
   }
 
   /**
-   * Returns the number of buses.
+   * Removes one electric train from storage.
+   */
+  public void decrementElectricTrain() {
+    electricTrainsNum--;
+  }
+
+  /**
+   * Adds one electric train back to storage.
+   */
+  public void incrementElectricTrain() {
+    electricTrainsNum++;
+  }
+
+  /**
+   * Removes one diesel train from storage.
+   */
+  public void decrementDieselTrain() {
+    dieselTrainsNum--;
+  }
+
+  /**
+   * Adds one diesel train back to storage.
+   */
+  public void incrementDieselTrain() {
+    dieselTrainsNum++;
+  }
+
+  /**
+   * Returns the number of small buses.
    *
-   * @return number of buses
+   * @return number of small buses
    */
-  public int getBusesNum() {
-    return busesNum;
+  public int getSmallBusesNum() {
+    return smallBusesNum;
   }
 
   /**
-   * Returns the number of trains.
+   * Returns the number of large buses.
    *
-   * @return number of trains
+   * @return number of large buses
    */
-  public int getTrainsNum() {
-    return trainsNum;
+  public int getLargeBusesNum() {
+    return largeBusesNum;
   }
 
   /**
-   * Sets the number of buses.
+   * Returns the number of electric trains.
    *
-   * @param busesNum number of buses
+   * @return number of electric trains
    */
-  public void setBusesNum(int busesNum) {
-    this.busesNum = busesNum;
+  public int getElectricTrainsNum() {
+    return electricTrainsNum;
   }
 
   /**
-   * Sets the number of trains.
+   * Returns the number of diesel trains.
    *
-   * @param trainsNum number of trains
+   * @return number of diesel trains
    */
-  public void setTrainsNum(int trainsNum) {
-    this.trainsNum = trainsNum;
+  public int getDieselTrainsNum() {
+    return dieselTrainsNum;
+  }
+
+  /**
+   * Sets the number of small buses.
+   *
+   * @param smallBusesNum number of small buses
+   */
+  public void setSmallBusesNum(int smallBusesNum) {
+    this.smallBusesNum = smallBusesNum;
+  }
+
+  /**
+   * Sets the number of large buses.
+   *
+   * @param largeBusesNum number of large buses
+   */
+  public void setLargeBusesNum(int largeBusesNum) {
+    this.largeBusesNum = largeBusesNum;
+  }
+
+  /**
+   * Sets the number of electric trains.
+   *
+   * @param electricTrainsNum number of electric trains
+   */
+  public void setElectricTrainsNum(int electricTrainsNum) {
+    this.electricTrainsNum = electricTrainsNum;
+  }
+
+  /**
+   * Sets the number of diesel trains.
+   *
+   * @param dieselTrainsNum number of diesel trains
+   */
+  public void setDieselTrainsNum(int dieselTrainsNum) {
+    this.dieselTrainsNum = dieselTrainsNum;
   }
 }
-
-
-
