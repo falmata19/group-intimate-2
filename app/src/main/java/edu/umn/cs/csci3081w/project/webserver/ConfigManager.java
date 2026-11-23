@@ -1,6 +1,7 @@
 package edu.umn.cs.csci3081w.project.webserver;
 
 import edu.umn.cs.csci3081w.project.model.Counter;
+import edu.umn.cs.csci3081w.project.model.Line;
 import edu.umn.cs.csci3081w.project.model.Position;
 import edu.umn.cs.csci3081w.project.model.RandomPassengerGenerator;
 import edu.umn.cs.csci3081w.project.model.Route;
@@ -13,7 +14,7 @@ import java.util.Scanner;
 import org.apache.commons.io.FileUtils;
 
 /**
- * Reads the config file and keeps the routes and the storage facility from it.
+ * Reads the config file and keeps the lines, routes, and storage facility from it.
  */
 public class ConfigManager {
   private static final String LINE_START = "LINE_START";
@@ -24,6 +25,7 @@ public class ConfigManager {
   private static final String TRAIN_LINE = "TRAIN_LINE";
 
   private List<Route> routes = new ArrayList<Route>();
+  private List<Line> lines = new ArrayList<Line>();
   private StorageFacility storageFacility;
 
   /**
@@ -46,6 +48,7 @@ public class ConfigManager {
       String currLineName = "";
       String currLineType = "";
       String currRouteName = "";
+      Route currOutboundRoute = null;
       List<Stop> stops = new ArrayList<Stop>();
       List<Double> probabilities = new ArrayList<Double>();
       Scanner scanner = new Scanner(configFile);
@@ -62,7 +65,9 @@ public class ConfigManager {
             currLineType = Route.TRAIN_LINE;
           }
           currLineName = splits[2].trim();
+          currOutboundRoute = null;
         } else if (chunk.equals(LINE_END)) {
+          currOutboundRoute = null;
           currLineType = "";
           currLineName = "";
         } else if (chunk.equals(ROUTE_START)) {
@@ -84,10 +89,19 @@ public class ConfigManager {
                   + (currLongitude - prevLongitude) * (currLongitude - prevLongitude));
               distances.add(dist);
             }
-            routes.add(
+            Route currRoute =
                 new Route(counter.getRouteIdCounterAndIncrement(), currLineName, currLineType,
                     currRouteName, stops, distances,
-                    new RandomPassengerGenerator(stops, probabilities)));
+                    new RandomPassengerGenerator(stops, probabilities));
+            routes.add(currRoute);
+            // The first route of a line is outbound and the second one is inbound.
+            if (currOutboundRoute == null) {
+              currOutboundRoute = currRoute;
+            } else {
+              lines.add(new Line(counter.getLineIdCounterAndIncrement(), currLineName,
+                  currLineType, currOutboundRoute, currRoute));
+              currOutboundRoute = null;
+            }
             currRouteName = "";
             stops.clear();
             probabilities.clear();
@@ -126,6 +140,9 @@ public class ConfigManager {
     return routes;
   }
 
+  public List<Line> getLines() {
+    return lines;
+  }
 
   public StorageFacility getStorageFacility() {
     return storageFacility;

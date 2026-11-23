@@ -2,7 +2,8 @@ package edu.umn.cs.csci3081w.project.webserver;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import edu.umn.cs.csci3081w.project.model.Route;
+import edu.umn.cs.csci3081w.project.model.Line;
+import java.util.List;
 
 /**
  * Command that sends the lines to the visualization module.
@@ -28,16 +29,17 @@ public class InitLinesCommand extends SimulatorCommand {
    */
   @Override
   public void execute(WebServerSession session, JsonObject command) {
-    int numLines = (simulator.getRoutes().size()) / 2;
+    List<Line> lines = simulator.getLines();
+    int numLines = lines.size();
     JsonObject data = new JsonObject();
     data.addProperty("command", "initLines");
     data.addProperty("numLines", numLines);
     JsonArray linesArray = new JsonArray();
-    for (int i = 0; i < simulator.getRoutes().size(); i = i + 2) {
-      Route currRoute = simulator.getRoutes().get(i);
+    for (Line line : lines) {
       JsonObject s = new JsonObject();
-      s.addProperty("name", currRoute.getLineName());
-      s.addProperty("type", currRoute.getLineType());
+      s.addProperty("id", line.getId());
+      s.addProperty("name", line.getName());
+      s.addProperty("type", line.getType());
       linesArray.add(s);
     }
     data.add("lines", linesArray);

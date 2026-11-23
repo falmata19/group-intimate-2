@@ -1,5 +1,8 @@
 package edu.umn.cs.csci3081w.project.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.ArrayList;
@@ -7,6 +10,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests for the Line class.
+ */
 public class LineTest {
 
   /**
@@ -43,6 +49,67 @@ public class LineTest {
     Line line = new Line(outbound, inbound);
     assertSame(outbound, line.getOutboundRoute());
     assertSame(inbound, line.getInboundRoute());
+  }
+
+  /**
+   * Tests that the old constructor gives id -1 and takes the line name and type from
+   * the outbound route.
+   */
+  @Test
+  public void testConstructorWithoutIdTakesNameAndTypeFromOutbound() {
+    Line line = new Line(createRoute(10, "testRouteOut"), createRoute(11, "testRouteIn"));
+    assertEquals(-1, line.getId());
+    assertEquals("testLine", line.getName());
+    assertEquals("BUS_LINE", line.getType());
+  }
+
+  /**
+   * Tests that the old constructor works with a null outbound route.
+   */
+  @Test
+  public void testConstructorWithNullOutbound() {
+    Line line = new Line(null, null);
+    assertEquals(-1, line.getId());
+    assertNull(line.getName());
+    assertNull(line.getType());
+    assertNull(line.getOutboundRoute());
+  }
+
+  /**
+   * Tests that the full constructor stores the id, name, type, and both routes.
+   */
+  @Test
+  public void testFullConstructor() {
+    Route outbound = createRoute(10, "testRouteOut");
+    Route inbound = createRoute(11, "testRouteIn");
+    Line line = new Line(3, "Campus Connector", Route.BUS_LINE, outbound, inbound);
+    assertEquals(3, line.getId());
+    assertEquals("Campus Connector", line.getName());
+    assertEquals(Route.BUS_LINE, line.getType());
+    assertSame(outbound, line.getOutboundRoute());
+    assertSame(inbound, line.getInboundRoute());
+  }
+
+  /**
+   * Tests that shallowCopy keeps the id, name, and type, makes new route objects, and
+   * keeps the same stops in those routes.
+   */
+  @Test
+  public void testShallowCopy() {
+    Route outbound = createRoute(10, "testRouteOut");
+    Route inbound = createRoute(11, "testRouteIn");
+    Line line = new Line(7, "Green Line", Route.TRAIN_LINE, outbound, inbound);
+    Line copy = line.shallowCopy();
+    assertNotSame(line, copy);
+    assertEquals(7, copy.getId());
+    assertEquals("Green Line", copy.getName());
+    assertEquals(Route.TRAIN_LINE, copy.getType());
+    assertNotSame(outbound, copy.getOutboundRoute());
+    assertNotSame(inbound, copy.getInboundRoute());
+    assertEquals(outbound.getId(), copy.getOutboundRoute().getId());
+    assertEquals(inbound.getId(), copy.getInboundRoute().getId());
+    assertSame(outbound.getStops().get(0), copy.getOutboundRoute().getStops().get(0));
+    assertSame(inbound.getStops().get(1), copy.getInboundRoute().getStops().get(1));
   }
 
 }

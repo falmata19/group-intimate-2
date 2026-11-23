@@ -1,10 +1,11 @@
 package edu.umn.cs.csci3081w.project.model;
 
 /**
- * Gives out new ids for routes, stops, buses, and trains.
+ * Gives out new ids for lines, routes, stops, buses, and trains.
  */
 public class Counter {
 
+  public int lineIdCounter = 1;
   public int routeIdCounter = 10;
   public int stopIdCounter = 100;
   public int busIdCounter = 1000;
@@ -15,6 +16,15 @@ public class Counter {
    */
   public Counter() {
 
+  }
+
+  /**
+   * Gets the next line id and then adds one to the counter.
+   *
+   * @return the next line id
+   */
+  public int getLineIdCounterAndIncrement() {
+    return lineIdCounter++;
   }
 
   /**

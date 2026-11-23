@@ -2,7 +2,9 @@ package edu.umn.cs.csci3081w.project.webserver;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import edu.umn.cs.csci3081w.project.model.Line;
 import edu.umn.cs.csci3081w.project.model.Route;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,7 +31,11 @@ public class GetRoutesCommand extends SimulatorCommand {
    */
   @Override
   public void execute(WebServerSession session, JsonObject command) {
-    List<Route> routes = simulator.getRoutes();
+    List<Route> routes = new ArrayList<Route>();
+    for (Line line : simulator.getLines()) {
+      routes.add(line.getOutboundRoute());
+      routes.add(line.getInboundRoute());
+    }
     JsonObject data = new JsonObject();
     data.addProperty("command", "updateRoutes");
     JsonArray routesArray = new JsonArray();
