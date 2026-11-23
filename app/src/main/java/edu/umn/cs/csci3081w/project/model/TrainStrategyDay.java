@@ -11,6 +11,12 @@ public class TrainStrategyDay implements TrainStrategy {
   private int position = 0;
 
   /**
+   * Creates the day strategy, which starts at the first train of its sequence.
+   */
+  public TrainStrategyDay() {
+  }
+
+  /**
    * Returns the type of the next train and moves on in the sequence.
    *
    * @return type of the next train, electric or diesel

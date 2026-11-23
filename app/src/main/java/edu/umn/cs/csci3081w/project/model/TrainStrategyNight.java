@@ -10,6 +10,12 @@ public class TrainStrategyNight implements TrainStrategy {
   private int position = 0;
 
   /**
+   * Creates the night strategy, which starts at the first train of its sequence.
+   */
+  public TrainStrategyNight() {
+  }
+
+  /**
    * Returns the type of the next train and moves on in the sequence.
    *
    * @return type of the next train, electric or diesel
